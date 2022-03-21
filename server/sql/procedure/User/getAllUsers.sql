@@ -1,0 +1,10 @@
+DELIMITER //
+DROP PROCEDURE IF EXISTS getAllUsers //
+
+CREATE PROCEDURE getAllUsers()
+
+BEGIN
+  SELECT *
+    FROM user;
+END //
+DELIMITER ;
