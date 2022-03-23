@@ -1,0 +1,15 @@
+DELIMITER //
+DROP PROCEDURE IF EXISTS delVideoById //
+
+CREATE PROCEDURE delVideoById
+(
+    IN USER_ID INT,
+    IN VIDEO_ID INT
+)
+
+BEGIN
+    SELECT * from video WHERE userId = USER_ID AND videoId = VIDEO_ID;
+   /* Do the DELETE */
+   DELETE FROM video WHERE userId = USER_ID AND videoId = VIDEO_ID;
+END //
+DELIMITER ;

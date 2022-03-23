@@ -1,0 +1,11 @@
+DELIMITER //
+DROP PROCEDURE IF EXISTS getUserVideo //
+
+CREATE PROCEDURE getUserVideo(
+    IN USER_ID INT
+)
+
+BEGIN
+    SELECT * from video WHERE userId = USER_ID;
+END //
+DELIMITER ;

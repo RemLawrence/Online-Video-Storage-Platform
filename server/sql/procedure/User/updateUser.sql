@@ -10,6 +10,8 @@ CREATE PROCEDURE updateUser(
 )
 
 BEGIN
+    SELECT * from user WHERE userId = ID;
+    
     UPDATE user
     SET
         userName = NAME,
