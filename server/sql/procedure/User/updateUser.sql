@@ -2,7 +2,7 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS updateUser //
 
 CREATE PROCEDURE updateUser(
-    ID INT,
+    PREV_NAME VARCHAR(20),
     NAME VARCHAR(20),
     PWD VARCHAR(20), 
     EMAIL VARCHAR(50), 
@@ -10,7 +10,9 @@ CREATE PROCEDURE updateUser(
 )
 
 BEGIN
-    SELECT * from user WHERE userId = ID;
+    /* DECLARE USER_ID VARCHAR(36); */
+    /* SET USER_ID = (SELECT userId from user WHERE userName = NAME); */
+    SELECT * from user WHERE userName = PREV_NAME;
     
     UPDATE user
     SET
@@ -19,6 +21,6 @@ BEGIN
         userEmail = EMAIL,
         userCountry = COUNTRY
     WHERE
-        userId = ID;
+        userName = PREV_NAME;
 END //
 DELIMITER ;

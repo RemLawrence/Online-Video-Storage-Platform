@@ -1,0 +1,11 @@
+DELIMITER //
+DROP PROCEDURE IF EXISTS getUserByName //
+
+CREATE PROCEDURE getUserByName(
+    IN NAME VARCHAR(20)
+)
+
+BEGIN
+    SELECT * from user WHERE userName = NAME;
+END //
+DELIMITER ;

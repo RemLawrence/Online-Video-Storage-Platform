@@ -213,15 +213,15 @@ class GeneralUser(Resource):
 		except:
 			abort(400) # bad request
 
-class UserWithId(Resource):
-	# GET: Get a specific user via userid
+class UserWithName(Resource):
+	# GET: Get a specific user via username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:31308/user/1
-	def get(self, _userId):
+	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura
+	def get(self, _userName):
 		try:
 			cursor = mysql.cursor()
-			param = "CALL getUserById('" + str(_userId) + "')"
+			param = "CALL getUserByName('" + str(_userName) + "')"
 			cursor.execute(param)
 			mysql.commit()
 			user = cursor.fetchall()
@@ -233,16 +233,16 @@ class UserWithId(Resource):
 				return {'status': 200, 'User': returnedUser}
 			else:
 				abort(404)
-				return {'status': 404, 'message': "BAD REQUEST"}
+				return {'status': 404, 'message': "NOT FOUND"}
 		except:
 			abort(400) # bad request
 	
-	# PUT: Update the info of an existing user providing userid
+	# PUT: Update the info of an existing user providing username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d 
 	# '{"username": "gwar_gura", "password": "sh0rkzzz", "email": "gwargura@hotmail.com", "country":"CANADA"}' 
-	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/1
-	def put(self, _userId):
+	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwarguraa
+	def put(self, _userName):
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -259,11 +259,11 @@ class UserWithId(Resource):
 		
 		try:
 			cursor = mysql.cursor()
-			_userName = request_params['username']
-			_userPwd = request_params['password']
-			_email = request_params['email']
-			_country = request_params['country']
-			param = "CALL updateUser('" + _userId + "', '" +  _userName + "', '" + _userPwd + "', '" + _email + "', '" + _country + "')"
+			_newUserName = request_params['username']
+			_newUserPwd = request_params['password']
+			_newEmail = request_params['email']
+			_newCountry = request_params['country']
+			param = "CALL updateUser('" + _userName + "', '" +  _newUserName + "', '" + _newUserPwd + "', '" + _newEmail + "', '" + _newCountry + "')"
 			cursor.execute(param)
 			mysql.commit()
 			updatedUser = cursor.fetchall()
@@ -279,14 +279,14 @@ class UserWithId(Resource):
 			abort(400) # bad request
 
 	
-	# DELETE: Delete a specific user providing its userid
+	# DELETE: Delete a specific user providing its username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	-k https://info3103.cs.unb.ca:31308/5
-	def delete(self, _userId):
+	#	-k https://cs3103.cs.unb.ca:31308/user/gwarguraa
+	def delete(self, _userName):
 		try:
 			cursor = mysql.cursor()
-			param = "CALL delUserById('" + str(_userId) + "')"
+			param = "CALL delUserByName('" + str(_userName) + "')"
 			cursor.execute(param)
 			mysql.commit()
 			deletedUser = cursor.fetchall()
@@ -307,8 +307,8 @@ class VideoInit(Resource):
 	# POST: Create a video for a specific user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d '{"title":"minecraft chu", "size": 200}' 
-	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/1/video
-	def post(self, _userId):
+	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
+	def post(self, _userName):
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -325,7 +325,7 @@ class VideoInit(Resource):
 			cursor = mysql.cursor()
 			_videoTitle = request_params['title']
 			_videoSize = request_params['size']
-			param = "CALL createVideo('" +  _userId + "', '" + _videoTitle + "', '" + str(_videoSize) + "')"
+			param = "CALL createVideo('" +  _userName + "', '" + _videoTitle + "', '" + str(_videoSize) + "')"
 			cursor.execute(param)
 			mysql.commit()
 			lastId = cursor.fetchall()
@@ -342,11 +342,11 @@ class VideoInit(Resource):
 	# GET: Get all the videos of a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:31308/user/1/video
-	def get(self, _userId):
+	#	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video
+	def get(self, _userName):
 		try:
 			cursor = mysql.cursor()
-			param = "CALL getUserVideo('" + str(_userId) + "')"
+			param = "CALL getUserVideo('" + str(_userName) + "')"
 			cursor.execute(param)
 			mysql.commit()
 			videos = cursor.fetchall()
@@ -362,7 +362,7 @@ class VideoInit(Resource):
 				return {'status': 200, 'Video': video}
 			else:
 				abort(404)
-				return {'status': 404, 'message': "No Content"}
+				return {'status': 404, 'message': "Not Found"}
 		except:
 			abort(400) # bad request
 
@@ -371,11 +371,47 @@ class VideoSpec(Resource):
 	# GET: Get a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:31308/user/1/video/1
-	def get(self, _userId, _videoId):
+	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8
+	def get(self, _userName, _videoId):
 		try:
 			cursor = mysql.cursor()
-			param = "CALL getVideoById(" + str(_userId) + "," + str(_videoId) + ")"
+			param = "CALL getVideoById('" + _userName + "','" + _videoId + "')"
+			cursor.execute(param)
+			mysql.commit()
+			video = cursor.fetchall()
+			if(len(video) > 0):
+				for row in video:
+					returnedvideo = {"title": str(row['videoTitle']), 
+					"size": str(row['videoSize']), 
+					"likes": str(row['likes']), 
+					"Upload Date": str(row['uploadDate'])}
+				return {'status': 200, 'Video': returnedvideo}
+			else:
+				abort(404)
+				return {'status': 404, 'message': "BAD REQUEST"}
+		except:
+			abort(400) # bad request
+
+	# GET: Update the likes of a spefiic video
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X PUT -d '{"likes":1}' -c cookie-jar -k 
+	# https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8
+	def put(self, _userName, _videoId):
+		if not request.json: # If the requested object is not in json format
+			abort(400) # bad request
+		
+		parser = reqparse.RequestParser()
+		try:
+ 			# Check for required attributes in json document, create a dictionary
+			parser.add_argument('likes', type=str, required=True)
+			request_params = parser.parse_args()
+		except:
+			abort(400) # bad request
+
+		try:
+			cursor = mysql.cursor()
+			_likes = request_params['likes']
+			param = "CALL updateVideoLike('" + _userName + "','" + _videoId + "'," + str(_likes) + ")"
 			cursor.execute(param)
 			mysql.commit()
 			video = cursor.fetchall()
@@ -395,11 +431,11 @@ class VideoSpec(Resource):
 	# DELETE: Delete a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	-k https://info3103.cs.unb.ca:31308/1/video/2
-	def delete(self, _userId, _videoId):
+	#	-k https://info3103.cs.unb.ca:31308/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
+	def delete(self, _userName, _videoId):
 		try:
 			cursor = mysql.cursor()
-			param = "CALL delVideoById(" + str(_userId) + "," + str(_videoId) + ")"
+			param = "CALL delVideoById('" + _userName + "','" + _videoId + "')"
 			cursor.execute(param)
 			mysql.commit()
 			deletedVideo = cursor.fetchall()
@@ -423,10 +459,10 @@ class VideoSpec(Resource):
 api = Api(app)
 api.add_resource(SignIn, '/signin')
 api.add_resource(GeneralUser, '/user')
-api.add_resource(UserWithId, '/user/<_userId>')
+api.add_resource(UserWithName, '/user/<_userName>')
 
-api.add_resource(VideoInit, '/user/<_userId>/video')
-api.add_resource(VideoSpec, '/user/<_userId>/video/<_videoId>')
+api.add_resource(VideoInit, '/user/<_userName>/video')
+api.add_resource(VideoSpec, '/user/<_userName>/video/<_videoId>')
 
 
 #############################################################################

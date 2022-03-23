@@ -11,12 +11,14 @@ BEGIN
 
    /* Do the INSERT */
    INSERT INTO user (
+      userId,
       userName, 
       userPwd, 
       userEmail, 
       userCountry,
       createDate
    ) VALUES (
+      UUID(),
       NAME,
       PWD,
       EMAIL,

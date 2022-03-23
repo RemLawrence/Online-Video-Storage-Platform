@@ -2,10 +2,13 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS getUserVideo //
 
 CREATE PROCEDURE getUserVideo(
-    IN USER_ID INT
+    IN USER_NAME VARCHAR(36)
 )
 
 BEGIN
+    DECLARE USER_ID VARCHAR(36); 
+    SET USER_ID = (SELECT userId from user WHERE userName = USER_NAME LIMIT 1); 
+    
     SELECT * from video WHERE userId = USER_ID;
 END //
 DELIMITER ;

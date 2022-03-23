@@ -2,20 +2,24 @@ DELIMITER //
 DROP PROCEDURE IF EXISTS createVideo //
 CREATE PROCEDURE createVideo
 (
-    USER_ID INT,
+    USER_NAME VARCHAR(20),
     TITLE VARCHAR(100),
     SIZE FLOAT
 )
 
 BEGIN
+   DECLARE USER_ID VARCHAR(36);
+   SET USER_ID = (SELECT userId FROM user WHERE userName = USER_NAME LIMIT 1);
    /* Do the INSERT */
    INSERT INTO video (
+      videoId,
       videoTitle, 
       videoSize, 
       likes, 
       uploadDate,
       userId
    ) VALUES (
+      UUID(),
       TITLE,
       SIZE,
       0,
