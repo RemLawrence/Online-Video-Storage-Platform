@@ -1,0 +1,14 @@
+DELIMITER //
+DROP PROCEDURE IF EXISTS getUserVideoList //
+
+CREATE PROCEDURE getUserVideoList(
+    IN USER_NAME VARCHAR(36)
+)
+
+BEGIN
+    DECLARE USER_ID VARCHAR(36); 
+    SET USER_ID = (SELECT userId from user WHERE userName = USER_NAME LIMIT 1); 
+    
+    SELECT * from videolist WHERE userId = USER_ID;
+END //
+DELIMITER ;

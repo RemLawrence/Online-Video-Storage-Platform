@@ -431,7 +431,7 @@ class VideoSpec(Resource):
 	# DELETE: Delete a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	-k https://info3103.cs.unb.ca:31308/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
+	#	-k https://cs3103.cs.unb.ca:31308/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
 	def delete(self, _userName, _videoId):
 		try:
 			cursor = mysql.cursor()
@@ -452,6 +452,227 @@ class VideoSpec(Resource):
 		except:
 			abort(400) # bad request
 
+
+class VideoListInit(Resource):
+	# POST: Create a video list for a user
+	# Example curl command: 
+	# curl -i -H "Content-Type: application/json" -X POST -d 
+	# '{"name": "holo_EN", "description": ""}' 
+	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
+	def post(self, _userName):
+		if not request.json: # If the requested object is not in json format
+			abort(400) # bad request
+		
+		parser = reqparse.RequestParser()
+		try:
+ 			# Check for required attributes in json document, create a dictionary
+			parser.add_argument('name', type=str, required=True)
+			parser.add_argument('description', type=str, required=True)
+			request_params = parser.parse_args()
+		except:
+			abort(400) # bad request
+		
+		try:
+			cursor = mysql.cursor()
+			_name = request_params['name']
+			_description = request_params['description']
+			param = "CALL createVideoList('" + _userName + "','" + _name + "','" + _description + "')"
+			cursor.execute(param)
+			mysql.commit()
+			createdVideoList = cursor.fetchall()
+			if(len(createdVideoList) > 0):
+				for row in createdVideoList:
+					_videoListId = str(row['LAST_INSERT_ID()'])
+				return {'status': 200, 'LAST_INSERT_ID': _videoListId}
+			else:
+				abort(400)
+				return {'status': 400, 'message': "Bad Request"}
+		except:
+			abort(400) # bad request
+	
+	# GET: Get all the videolists of a user
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
+	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
+	def get(self, _userName):
+		try:
+			cursor = mysql.cursor()
+			param = "CALL getUserVideoList('" + str(_userName) + "')"
+			cursor.execute(param)
+			mysql.commit()
+			videolists = cursor.fetchall()
+			if(len(videolists) > 0):
+				i = 0
+				videolist = [0] * len(videolists)
+				for row in videolists:
+					videolist[i] = {"user": _userName,
+						"name": str(row['videoListTitle']), 
+					"description": str(row['description'])}
+					i = i+1
+				return {'status': 200, 'Video': videolist}
+			else:
+				abort(404)
+				return {'status': 404, 'message': "Not Found"}
+		except:
+			abort(400) # bad request
+		
+class VideoList(Resource):
+	# GET: Get the videos in a videolist
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k 
+	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8
+	def get(self, _userName, _videoListId):
+		try:
+			cursor = mysql.cursor()
+			param = "CALL getVideoInVideoList('" + _userName + "','" + _videoListId + "')"
+			cursor.execute(param)
+			mysql.commit()
+			videolists = cursor.fetchall()
+			if(len(videolists) > 0):
+				i = 0
+				videolist = [0] * len(videolists)
+				for row in videolists:
+					videolist[i] = {"videoId": str(row['vv_videoId'])}
+					i = i+1
+				return {'status': 200, 'Video': videolist}
+			else:
+				abort(404)
+				return {'status': 404, 'message': "Not Found"}
+		except:
+			abort(400) # bad request
+
+	# PUT: Update existing videolist info
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X PUT -d 
+	# '{"name": "holo_JP(2019-2022)", "description": "unthinkable memories"}' -c cookie-jar 
+	# -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea8
+	def put(self, _userName, _videoListId):
+		if not request.json: # If the requested object is not in json format
+			abort(400) # bad request
+		
+		parser = reqparse.RequestParser()
+		try:
+ 			# Check for required attributes in json document, create a dictionary
+			parser.add_argument('name', type=str, required=True)
+			parser.add_argument('description', type=str, required=True)
+			request_params = parser.parse_args()
+		except:
+			abort(400) # bad request
+		
+		try:
+			cursor = mysql.cursor()
+			_name = request_params['name']
+			_description = request_params['description']
+			param = "CALL updateVideoList('" + _userName + "','" + _videoListId + "','" + _name + "','" + _description + "')"
+			cursor.execute(param)
+			mysql.commit()
+			updatedVideoList = cursor.fetchall()
+			if(len(updatedVideoList) > 0):
+				for row in updatedVideoList:
+					returnedvideolist = {"title": str(row['videoListTitle']), 
+					"description": str(row['description'])}
+				return {'status': 200, 'Updated VideoList': returnedvideolist}
+			else:
+				abort(400)
+				return {'status': 400, 'message': "Bad Request"}
+		except:
+			abort(400) # bad request
+
+	# DELETE: Delete a videolist for a user
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k 
+	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8
+	def delete(self, _userName, _videoListId):
+		try:
+			cursor = mysql.cursor()
+			param = "CALL delVideoList('" + _userName + "','" + _videoListId + "')"
+			cursor.execute(param)
+			mysql.commit()
+			deletedvideolist = cursor.fetchall()
+			if(len(deletedvideolist) > 0):
+				for row in deletedvideolist:
+					videolist = { "id": str(row['videoListId']),
+						"title": str(row['videoListTitle']), 
+					"description": str(row['description'])}
+				return {'status': 200, 'Deleted VideoList': videolist}
+			else:
+				abort(404)
+				return {'status': 404, 'message': "Not Found"}
+		except:
+			abort(400) # bad request
+
+class AddVideoToVideoList(Resource):
+	# POST: Add a video to a videolist
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X POST -d 
+	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' 
+	# -c cookie-jar -k 
+	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/addVideo
+	def post(self, _userName, _videoListId):
+		if not request.json: # If the requested object is not in json format
+			abort(400) # bad request
+		
+		parser = reqparse.RequestParser()
+		try:
+ 			# Check for required attributes in json document, create a dictionary
+			parser.add_argument('videoId', type=str, required=True)
+			request_params = parser.parse_args()
+		except:
+			abort(400) # bad request
+		
+		try:
+			cursor = mysql.cursor()
+			_videoId = request_params['videoId']
+			param = "CALL addVideoToVideoList('" + _userName + "','" + _videoId + "','" + _videoListId + "')"
+			cursor.execute(param)
+			mysql.commit()
+			addedVideoId = cursor.fetchall()
+			if(len(addedVideoId) > 0):
+				for row in addedVideoId:
+					_videoListId = str(row['LAST_INSERT_ID()'])
+				return {'status': 200, 'LAST_INSERT_ID': addedVideoId}
+			else:
+				abort(400)
+				return {'status': 400, 'message': "Bad Request"}
+		except:
+			abort(400) # bad request
+
+class DelVideoFromVideoList(Resource):
+	# DELETE: Delete a video from a videolist
+	# Example curl command:
+	# curl -i -H "Content-Type: application/json" -X DELETE -d 
+	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -c cookie-jar -k 
+	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/deleteVideo
+	def delete(self, _userName, _videoListId):
+		if not request.json: # If the requested object is not in json format
+			abort(400) # bad request
+		
+		parser = reqparse.RequestParser()
+		try:
+ 			# Check for required attributes in json document, create a dictionary
+			parser.add_argument('videoId', type=str, required=True)
+			request_params = parser.parse_args()
+		except:
+			abort(400) # bad request
+
+		try:
+			cursor = mysql.cursor()
+			_videoId = request_params['videoId']
+			param = "CALL delVideoFromVideoList('" + _userName + "','" + _videoId + "','" + _videoListId + "')"
+			cursor.execute(param)
+			mysql.commit()
+			deletedVideoId = cursor.fetchall()
+			if(len(deletedVideoId) > 0):
+				for row in deletedVideoId:
+					_video = {"deleted video": str(row['vv_videoId']),
+						"video list": str(row['vv_videoListId'])}
+				return {'status': 200, 'Info': _video}
+			else:
+				abort(400)
+				return {'status': 400, 'message': "Bad Request"}
+		except:
+			abort(400) # bad request
+
 ####################################################################################
 #
 # Identify/create endpoints and endpoint objects
@@ -463,6 +684,11 @@ api.add_resource(UserWithName, '/user/<_userName>')
 
 api.add_resource(VideoInit, '/user/<_userName>/video')
 api.add_resource(VideoSpec, '/user/<_userName>/video/<_videoId>')
+
+api.add_resource(VideoListInit, '/user/<_userName>/videolist')
+api.add_resource(VideoList, '/user/<_userName>/videolist/<_videoListId>')
+api.add_resource(AddVideoToVideoList, '/user/<_userName>/videolist/<_videoListId>/addVideo')
+api.add_resource(DelVideoFromVideoList, '/user/<_userName>/videolist/<_videoListId>/deleteVideo')
 
 
 #############################################################################
