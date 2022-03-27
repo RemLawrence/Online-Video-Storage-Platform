@@ -39,32 +39,36 @@ mysql = pymysql.connect(host=settings.MYSQL_HOST,
 #
 @app.errorhandler(400) # decorators to add to 400 response
 def not_found(error):
-	return make_response(jsonify( { 'status': 'the fuck is this request' } ), 400)
+	return make_response(jsonify( { 'status': 'Bad Request' } ), 400)
+
+@app.errorhandler(401) # decorators to add to 401 response
+def not_found(error):
+	return make_response(jsonify( { 'status': 'Unauthorized' } ), 401)
+
+@app.errorhandler(403) # decorators to add to 403 response
+def not_found(error):
+	return make_response(jsonify( { 'status': 'Forbidden' } ), 403)
 
 @app.errorhandler(404) # decorators to add to 404 response
 def not_found(error):
 	return make_response(jsonify( { 'status': 'Resource not found' } ), 404)
 
+@app.errorhandler(500) # decorators to add to 500 response
+def not_found(error):
+	return make_response(jsonify( { 'status': 'Internal server error' } ), 500)
+
 ###################################################################################
 #
 # Routing: GET and POST using Flask-Session
 #
- 
-# @app.route('/login', methods = ['POST', 'GET'])
-# def login():#
-    
 class SignIn(Resource):
-	#
-	# Set Session and return Cookie
-	#
+	# 1. POST: Set Session and return Cookie
 	# Example curl command:
-	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ggura", "password": "123456"}'
+	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "gwargura", "password": "sh0rkAAAA++"}'
 	#  	-c cookie-jar -k https://cs3103.cs.unb.ca:31308/signin
-	#
 	def post(self):    
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
-
 		# Parse the json, works like lodash
 		parser = reqparse.RequestParser()
 		try:
@@ -76,82 +80,87 @@ class SignIn(Resource):
 			abort(400) # bad request
 
 		try:
-			cursor = mysql.cursor()
-			_userName = request_params['username']
-			_userPwd = request_params['password']
-			param = "CALL loginUser('" +  _userName + "', '" + _userPwd + "')"
-			cursor.execute(param)
-			mysql.commit()
-			user = cursor.fetchall()
-			if(len(user) > 0):
-				for row in user:
-					_userId = str(row['userId'])
-				return {'status': 200, 'UserId': _userId}
+			if request_params['username'] in session:
+				response = {'status': 'success'}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "Username or Password is incorrect"}
+				try:
+					cursor = mysql.cursor()
+					_userName = request_params['username']
+					_userPwd = request_params['password']
+					param = "CALL loginUser('" +  _userName + "', '" + _userPwd + "')"
+					cursor.execute(param)
+					mysql.commit()
+					user = cursor.fetchall()
+					if(len(user) > 0):
+						try:	
+							ldapServer = Server(host=settings.LDAP_HOST)
+							ldapConnection = Connection(ldapServer,
+								raise_exceptions=False,
+								user='uid='+request_params['username']+', ou=People,ou=fcs,o=unb',
+								password = request_params['password'])
+							ldapConnection.open()
+							ldapConnection.start_tls()
+							ldapConnection.bind()
+							# At this point we have sucessfully authenticated.
+							session['username'] = request_params['username']
+							response = {'status': 'success'}
+							responseCode = 201
+						except LDAPException:
+							response = {'status': 'Access denied'}
+							responseCode = 403
+						finally:
+							ldapConnection.unbind()
+					else:
+						response = {'status': 'Username or password not correct'}
+						responseCode = 403
+				except:
+					abort(400) # bad request
+
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
-		# if request_params['username'] in session:
-		# 	response = {'status': 'success'}
-		# 	responseCode = 200
-		# else:
-		# 	try:
-		# 		ldapServer = Server(host=settings.LDAP_HOST)
-		# 		ldapConnection = Connection(ldapServer,
-		# 			raise_exceptions=True,
-		# 			user='uid='+request_params['username']+', ou=People,ou=fcs,o=unb',
-		# 			password = request_params['password'])
-		# 		ldapConnection.open()
-		# 		ldapConnection.start_tls()
-		# 		ldapConnection.bind()
-		# 		# At this point we have sucessfully authenticated.
-		# 		session['username'] = request_params['username']
-		# 		response = {'status': 'success' }
-		# 		responseCode = 201
-		# 	except LDAPException:
-		# 		response = {'status': 'Access denied'}
-		# 		responseCode = 403
-		# 	finally:
-		# 		ldapConnection.unbind()
-
-		#return make_response(jsonify(response), responseCode)
-
-	# GET: Check Cookie data with Session data
-	#
+	# 2. GET: Check Cookie data with Session data
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:61340/signin
-	# def get(self):
-	# 	success = False
-	# 	if 'username' in session:
-	# 		username = session['username']
-	# 		response = {'status': 'success'}
-	# 		responseCode = 200
-	# 	else:
-	# 		response = {'status': 'fail'}
-	# 		responseCode = 403
+	# 	-k https://cs3103.cs.unb.ca:61340/signin
+	def get(self):
+		success = False
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			response = {'status': 'success', 'user in session': username}
+			responseCode = 200
+		else:
+			abort(403)
 
-	# 	return make_response(jsonify(response), responseCode)
+		return make_response(jsonify(response), responseCode)
 
-	# DELETE: Check Cookie data with Session data (logout?)
-	#
+	# 3. DELETE: Check Cookie data with Session data (logout?)
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	-k https://info3103.cs.unb.ca:61340/signin
+	#	-k https://cs3103.cs.unb.ca:61340/signin
+	def delete(self):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			# Delete the session
+			session.clear()
+			response = {'status': 'success', 'deleted username in session': username}
+			responseCode = 200
+		else:
+			abort(403)
 
-	#
-	#	Here's your chance to shine!
-	#
+		return make_response(jsonify(response), responseCode)
 
 
 # class GeneralUser
-class GeneralUser(Resource):
-	# POST: Create a new user
+class SignUp(Resource):
+	# 4. POST: Create a new user
 	# Example curl command:
-	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "uruharushia", "password": "marine", 
-	# "email": "mikeneko@gmail.com", "country": "JAPAN"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user
+	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ameliawatson", "password": "ameame22", 
+	# "email": "ame_holoEN@gmail.com", "country": "UK"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/signup
 	def post(self):
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -180,41 +189,16 @@ class GeneralUser(Resource):
 			if(len(lastId) == 1):
 				for row in lastId:
 					_userId = str(row['LAST_INSERT_ID()'])
-				return {'status': 200, 'LAST_INSERT_ID': _userId}
+				response = {'status': 'created'}
+				responseCode = 201
 			else:
 				abort(400)
-				return {'status': 400, 'message': "BAD REQUEST"}
-		except:
-			abort(400) # bad request
-	
-	# GET: Retrieve all the users in the database
-	# Example curl command:
-	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:31308/user
-	def get(self):
-		try:
-			cursor = mysql.cursor()
-			param = "CALL getAllUsers()"
-			cursor.execute(param)
-			mysql.commit()
-			users = cursor.fetchall()
-			if(len(users) > 0):
-				i = 0
-				user = [0] * len(users)
-				for row in users:
-					user[i] = {"Name": str(row['userName']), 
-					"Country": str(row['userCountry']), 
-					"Join Date": str(row['createDate'])}
-					i = i+1
-				return {'status': 200, 'User': user}
-			else:
-				abort(404)
-				return {'status': 404, 'message': "No Content"}
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 class UserWithName(Resource):
-	# GET: Get a specific user via username
+	# 5. GET: Get a specific user via username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura
@@ -230,19 +214,29 @@ class UserWithName(Resource):
 					returnedUser = {"Name": str(row['userName']), 
 					"Country": str(row['userCountry']), 
 					"Join Date": str(row['createDate'])}
-				return {'status': 200, 'User': returnedUser}
+				response = {'status': 'success', 'User': returnedUser}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "NOT FOUND"}
+				response = {'status': 'User not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 	
-	# PUT: Update the info of an existing user providing username
+	# 6. PUT: Update the info of an existing user providing username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d 
 	# '{"username": "gwar_gura", "password": "sh0rkzzz", "email": "gwargura@hotmail.com", "country":"CANADA"}' 
-	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwarguraa
+	# -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwarguraa
 	def put(self, _userName):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+		
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -271,19 +265,29 @@ class UserWithName(Resource):
 				for row in updatedUser:
 					username = {"Id": str(row['userId']),
 						"Name": str(row['userName'])}
-				return {'status': 200, 'Updated User': username}
+				response = {'status': 'success', 'Updated User': username}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "USER NOT FOUND"}
+				response = {'status': 'User not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 	
-	# DELETE: Delete a specific user providing its username
+	# 7. DELETE: Delete a specific user providing its username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwarguraa
 	def delete(self, _userName):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+
 		try:
 			cursor = mysql.cursor()
 			param = "CALL delUserByName('" + str(_userName) + "')"
@@ -294,21 +298,31 @@ class UserWithName(Resource):
 				for row in deletedUser:
 					username = {"Id": str(row['userId']),
 						"Name": str(row['userName'])}
-				return {'status': 200, 'Deleted User': username}
+				response = {'status': 'Deleted', 'Deleted User': username}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "USER NOT FOUND"}
+				response = {'status': 'User not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 
 # class Video
 class VideoInit(Resource):
-	# POST: Create a video for a specific user
+	# 8. POST: Create a video for a specific user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d '{"title":"minecraft chu", "size": 200}' 
-	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
+	# -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
 	def post(self, _userName):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -332,14 +346,15 @@ class VideoInit(Resource):
 			if(len(lastId) == 1):
 				for row in lastId:
 					_videoId = str(row['LAST_INSERT_ID()'])
-				return {'status': 200, 'LAST_INSERT_ID': _videoId}
+				response = {'status': 'created'}
+				responseCode = 201
 			else:
 				abort(400)
-				return {'status': 400, 'message': "BAD REQUEST"}
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 	
-	# GET: Get all the videos of a user
+	# 9. GET: Get all the videos of a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video
@@ -359,16 +374,18 @@ class VideoInit(Resource):
 					"likes": str(row['likes']), 
 					"Upload Date": str(row['uploadDate'])}
 					i = i+1
-				return {'status': 200, 'Video': video}
+				response = {'status': 'success', 'Videos': video}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "Not Found"}
+				response = {'status': 'User not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 # class Video
 class VideoSpec(Resource):
-	# GET: Get a user's video
+	# 10. GET: Get a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8
@@ -385,16 +402,18 @@ class VideoSpec(Resource):
 					"size": str(row['videoSize']), 
 					"likes": str(row['likes']), 
 					"Upload Date": str(row['uploadDate'])}
-				return {'status': 200, 'Video': returnedvideo}
+				response = {'status': 'success', 'Video': returnedvideo}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "BAD REQUEST"}
+				response = {'status': 'User or video not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
-	# GET: Update the likes of a spefiic video
+	# 11. GET: Update the likes of a spefiic video
 	# Example curl command:
-	# curl -i -H "Content-Type: application/json" -X PUT -d '{"likes":1}' -c cookie-jar -k 
+	# curl -i -H "Content-Type: application/json" -X PUT -d '{"likes":1}' -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8
 	def put(self, _userName, _videoId):
 		if not request.json: # If the requested object is not in json format
@@ -421,18 +440,28 @@ class VideoSpec(Resource):
 					"size": str(row['videoSize']), 
 					"likes": str(row['likes']), 
 					"Upload Date": str(row['uploadDate'])}
-				return {'status': 200, 'Video': returnedvideo}
+				response = {'status': 'success', 'Updated Video': returnedvideo}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "BAD REQUEST"}
+				response = {'status': 'User or video not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 	
-	# DELETE: Delete a user's video
+	# 12. DELETE: Delete a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
-	#	-k https://cs3103.cs.unb.ca:31308/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
+	#	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
 	def delete(self, _userName, _videoId):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+		
 		try:
 			cursor = mysql.cursor()
 			param = "CALL delVideoById('" + _userName + "','" + _videoId + "')"
@@ -445,21 +474,31 @@ class VideoSpec(Resource):
 						"title": str(row['videoTitle']), 
 					"size": str(row['videoSize']), 
 					"Upload Date": str(row['uploadDate'])}
-				return {'status': 200, 'Deleted Video': video}
+				response = {'status': 'Deleted', 'Deleted Video': video}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "USER NOT FOUND"}
+				response = {'status': 'User or video not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 
 class VideoListInit(Resource):
-	# POST: Create a video list for a user
+	# 13. POST: Create a video list for a user
 	# Example curl command: 
 	# curl -i -H "Content-Type: application/json" -X POST -d 
 	# '{"name": "holo_EN", "description": ""}' 
-	# -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
+	# -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
 	def post(self, _userName):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+		
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -483,14 +522,15 @@ class VideoListInit(Resource):
 			if(len(createdVideoList) > 0):
 				for row in createdVideoList:
 					_videoListId = str(row['LAST_INSERT_ID()'])
-				return {'status': 200, 'LAST_INSERT_ID': _videoListId}
+				response = {'status': 'created'}
+				responseCode = 201
 			else:
 				abort(400)
-				return {'status': 400, 'message': "Bad Request"}
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 	
-	# GET: Get all the videolists of a user
+	# 14. GET: Get all the videolists of a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
@@ -509,15 +549,17 @@ class VideoListInit(Resource):
 						"name": str(row['videoListTitle']), 
 					"description": str(row['description'])}
 					i = i+1
-				return {'status': 200, 'Video': videolist}
+				response = {'status': 'success', 'VideoLists': videolist}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "Not Found"}
+				response = {'status': 'User not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 		
 class VideoList(Resource):
-	# GET: Get the videos in a videolist
+	# 15. GET: Get the info of a videolist (videos, essentially)
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8
@@ -534,19 +576,29 @@ class VideoList(Resource):
 				for row in videolists:
 					videolist[i] = {"videoId": str(row['vv_videoId'])}
 					i = i+1
-				return {'status': 200, 'Video': videolist}
+				response = {'status': 'success', 'VideoList': videolist}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "Not Found"}
+				response = {'status': 'User or videolist not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
-	# PUT: Update existing videolist info
+	# 16. PUT: Update existing videolist info
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d 
-	# '{"name": "holo_JP(2019-2022)", "description": "unthinkable memories"}' -c cookie-jar 
+	# '{"name": "holo_JP(2019-2022)", "description": "unthinkable memories"}' -b cookie-jar 
 	# -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea8
 	def put(self, _userName, _videoListId):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -571,18 +623,28 @@ class VideoList(Resource):
 				for row in updatedVideoList:
 					returnedvideolist = {"title": str(row['videoListTitle']), 
 					"description": str(row['description'])}
-				return {'status': 200, 'Updated VideoList': returnedvideolist}
+				response = {'status': 'success', 'Updated VideoList': returnedvideolist}
+				responseCode = 200
 			else:
-				abort(400)
-				return {'status': 400, 'message': "Bad Request"}
+				response = {'status': 'User or videolist not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
-	# DELETE: Delete a videolist for a user
+	# 17. DELETE: Delete a videolist for a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8
 	def delete(self, _userName, _videoListId):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+
 		try:
 			cursor = mysql.cursor()
 			param = "CALL delVideoList('" + _userName + "','" + _videoListId + "')"
@@ -594,21 +656,31 @@ class VideoList(Resource):
 					videolist = { "id": str(row['videoListId']),
 						"title": str(row['videoListTitle']), 
 					"description": str(row['description'])}
-				return {'status': 200, 'Deleted VideoList': videolist}
+				response = {'status': 'Deleted', 'Deleted VideoList': videolist}
+				responseCode = 200
 			else:
-				abort(404)
-				return {'status': 404, 'message': "Not Found"}
+				response = {'status': 'User or videolist not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 class AddVideoToVideoList(Resource):
-	# POST: Add a video to a videolist
+	# 18. POST: Add a video to a videolist
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d 
 	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' 
-	# -c cookie-jar -k 
+	# -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/addVideo
 	def post(self, _userName, _videoListId):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(403)
+		else:
+			abort(403)
+
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		
@@ -630,18 +702,20 @@ class AddVideoToVideoList(Resource):
 			if(len(addedVideoId) > 0):
 				for row in addedVideoId:
 					_videoListId = str(row['LAST_INSERT_ID()'])
-				return {'status': 200, 'LAST_INSERT_ID': addedVideoId}
+				response = {'status': 'created'}
+				responseCode = 201
 			else:
-				abort(400)
-				return {'status': 400, 'message': "Bad Request"}
+				response = {'status': 'User or videolist not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
 class DelVideoFromVideoList(Resource):
-	# DELETE: Delete a video from a videolist
+	# 19. DELETE: Delete a video from a videolist
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -d 
-	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -c cookie-jar -k 
+	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/deleteVideo
 	def delete(self, _userName, _videoListId):
 		if not request.json: # If the requested object is not in json format
@@ -666,10 +740,12 @@ class DelVideoFromVideoList(Resource):
 				for row in deletedVideoId:
 					_video = {"deleted video": str(row['vv_videoId']),
 						"video list": str(row['vv_videoListId'])}
-				return {'status': 200, 'Info': _video}
+				response = {'status': 'Deleted', 'Deleted Video': _video}
+				responseCode = 200
 			else:
-				abort(400)
-				return {'status': 400, 'message': "Bad Request"}
+				response = {'status': 'User or video or videolist not found'}
+				responseCode = 404
+			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
 
@@ -679,7 +755,7 @@ class DelVideoFromVideoList(Resource):
 #
 api = Api(app)
 api.add_resource(SignIn, '/signin')
-api.add_resource(GeneralUser, '/user')
+api.add_resource(SignUp, '/signup')
 api.add_resource(UserWithName, '/user/<_userName>')
 
 api.add_resource(VideoInit, '/user/<_userName>/video')
