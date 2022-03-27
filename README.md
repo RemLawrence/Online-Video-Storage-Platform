@@ -1,9 +1,44 @@
-TODO: 
-5. Modify docs
+![ER Diagram](http://url/to/img.png)
+
+All Stored Procedures:
+1. loginUser: Check username and password
+2. createUser: Create a new user
+3. getUserByName: Get a specific user via username
+4. updateUser: Update the info of an existing user providing username
+5. delUserByName: Delete a specific user providing its username
+6. createVideo: Create a video for a specific user
+7. getUserVideo: Get all the videos of a user
+8. getVideoById: Get a user's video
+9. updateVideoLike: Update the likes of a spefiic video
+10. delVideoById: Delete a user's video
+11. createVideoList: Create a video list for a user
+12. getUserVideoList: Get all the videolists of a user
+13. getVideoInVideoList: Get the info of a videolist (videos, essentially)
+14. updateVideoList: Update existing videolist info
+15. delVideoList: Delete a videolist for a user
+16. addVideoToVideoList: Add a video to a videolist
+17. delVideoFromVideoList: Delete a video from a videolist
+
+Application Directory Structure:
+project
+    -> /client
+        -> stores html/css/js scripts
+    -> /server
+        -> /sql
+            -> /table
+                -> stores 4 tables: user, video, videolist, video_videolist
+            -> /procedure
+                -> /User
+                    -> stores procedures relevant to the user endpoint
+                -> /Video
+                    -> stores procedures relevant to the video endpoint
+                -> /VideoList
+                    -> stores procedures relevant to the videolist endpoint
+        -> app.py
+        -> settings.py
 
 
 Curl Test Plan:
-
 1. Create session cookie, aka Login user:
    Endpoint: POST /signin
     Case 1: Successfully login: 

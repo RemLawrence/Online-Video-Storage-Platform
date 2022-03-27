@@ -265,6 +265,7 @@ class UserWithName(Resource):
 				for row in updatedUser:
 					username = {"Id": str(row['userId']),
 						"Name": str(row['userName'])}
+				# session['username'] = _newUserName
 				response = {'status': 'success', 'Updated User': username}
 				responseCode = 200
 			else:
