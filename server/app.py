@@ -411,7 +411,7 @@ class VideoSpec(Resource):
 		except:
 			abort(400) # bad request
 
-	# 11. GET: Update the likes of a spefiic video
+	# 11. PUT: Update the likes of a spefiic video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d '{"likes":1}' -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8

@@ -16,38 +16,8 @@ tags:
   - name: videolist
     description: "The videolist in video storage platform"
 paths:
-  /user:
+  /user/signin:
     post:
-      tags:
-      - "user"
-      summary: "createUser"
-      description: "This can only be done by the logged in user."
-      operationId: "createUser"
-      parameters:
-      - in: "body"
-        name: "body"
-        description: "Created user object"
-        required: true
-        schema:
-          $ref: '#/definitions/User'
-      responses:
-        default:
-          description: "successful operation"
-    get:
-      tags:
-      - "user"
-      summary: "Get all the users from video platform"
-      description: ""
-      operationId: "getUsers"
-      responses:
-        '200':
-          description: "successful operation"
-        '204':
-          description: "No Content"
-        "400":
-          description: "Bad Request"
-  /user/login:
-    get:
       tags:
       - "user"
       summary: "Logs user into the system"
@@ -66,46 +36,82 @@ paths:
         type: "string"
       responses:
         '200':
-          description: "successful operation"
-          headers:
-            X-Rate-Limit:
-              type: "integer"
-              description: "calls per hour allowed by the user"
-            X-Expires-After:
-              type: "string"
-              pattern: "YYYY-MM-DD"
-              description: "date in UTC when token expires"
+          description: "successful logged in, session created"
         "400":
-          description: "Invalid username/password supplied"
-  /user/logout:
-    get:
-      tags:
-      - "user"
-      summary: "Logs out current logged in user session"
-      description: ""
-      operationId: "logoutUser"
-      parameters: []
-      responses:
-        default:
-          description: "successful operation"
-  /user/{userId}:
+          description: "Bad Request"
+        "401":
+          description: "Username or password not correct"
     get:
       tags:
         - "user"
-      summary: "Get user by userId"
+      summary: "Check if the user is logged in"
       description: ""
-      operationId: "getUserById"
+      operationId: ""
+      responses:
+        '200':
+          description: "User is in session"
+          schema:
+            type: "array"
+            items:
+              $ref: '#/definitions/User'
+        "401":
+          description: "Current user is not in the session"
+      security:
+      - session_cookie: []
+    delete:
+      tags: 
+        - "user"
+      summary: "Delete session, logout user"
+      description: "logout user"
+      operationId: ""
+      responses:
+        '200':
+          description: "User successfully logged out"
+          schema:
+            type: "array"
+            items:
+              $ref: '#/definitions/User'
+        "401":
+          description: "Current user is not in the session"
+      security:
+      - session_cookie: []
+  /user:
+    post:
+      tags:
+      - "user"
+      summary: "createUser"
+      description: "Create a new user"
+      operationId: "createUser"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: "created"
+        "400":
+          description: "Bad Request"
+          
+  /user/{username}:
+    get:
+      tags:
+        - "user"
+      summary: "Get user by username"
+      description: ""
+      operationId: "getUserByName"
       parameters:
         - in: "path"
-          name: "userId"
+          name: "username"
           description: "The name that needs to be fetched."
           required: true
-          type: "integer"
+          type: "string"
       responses:
         '200':
           description: "search results matching criteria"
           schema:
-            type: "array"
             items:
               $ref: '#/definitions/User'
         '400':
@@ -115,16 +121,15 @@ paths:
     put:
       tags:
         - "user"
-      summary: "Update user"
+      summary: "Update the info of an existing user providing username"
       description: "This can only be done by the logged in user."
-      operationId: "updateUserById"
-
+      operationId: "updateUserByName"
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
         description: "User name that need to be updated"
         required: true
-        type: "integer"
+        type: "string"
       - in: "body"
         name: "body"
         description: "Update user object"
@@ -132,72 +137,59 @@ paths:
         schema:
           $ref: '#/definitions/User'
       responses:
+        '200':
+          description: "search results matching criteria"
+          schema:
+            items:
+              $ref: '#/definitions/User'
         "400":
-          description: "Invalid user supplied"
+          description: "Invalid username supplied"
+        "401":
+          description: "Unauthurized request"
         "404":
           description: "User not found"
       security:
-      - api_key: []
+      - session_cookie: []
     delete:
       tags:
       - "user"
       summary: "Deletes a user"
       description: ""
-      operationId: "deleteUserById"
+      operationId: "delUserByName"
       parameters:
-      - name: "api_key"
-        in: "header"
+      - name: "username"
+        in: "path"
+        description: "User Name"
         required: true
         type: "string"
-      - name: "userId"
-        in: "path"
-        description: "User Id"
-        required: true
-        type: "integer"
-      responses:
-        "400":
-          description: "Invalid ID supplied"
-        "404":
-          description: "Video not found"
-
-
-
-
-  /user/{userId}/video:
-    get:
-      tags:
-      - "video"
-      summary: "Get all videos of a user"
-      description: "Returns all the videos this user has"
-      operationId: "getVideoByUser"
-      parameters:
-      - name: "userId"
-        in: "path"
-        description: "User id"
-        required: true
-        type: "integer"
       responses:
         '200':
           description: "search results matching criteria"
           schema:
-            type: "array"
             items:
               $ref: '#/definitions/User'
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video not found"
+          description: "User not found"
       security:
-        - api_key: []
+      - session_cookie: []
+
+
+
+
+  /user/{username}/video:
     post:
       tags:
       - "video"
-      summary: "createVideo"
-      description: "This can only be done by the logged in user."
+      summary: "Create a video for a specific user"
+      description: "Create a video for a specific user"
       operationId: "createVideo"
       parameters:
         - in: "path"
-          name: "userId"
+          name: "username"
           description: "The name that needs to be fetched."
           required: true
           type: "integer"
@@ -208,30 +200,29 @@ paths:
           schema:
             $ref: '#/definitions/Video'
       responses:
-        default:
-          description: "successful operation"
+        '201':
+          description: "created"
+          schema:
+            items:
+              $ref: '#/definitions/Video'
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
       security:
-      - video_auth:
-        - "write:video"
-        - "read:video"
-  /user/{userId}/video/{videoId}:
+        - session_cookie: []
     get:
       tags:
       - "video"
-      summary: "Find video by ID"
-      description: "Returns a single video"
-      operationId: "getVideoById"
+      summary: "Get all videos of a user"
+      description: "Returns all the videos this user has"
+      operationId: "getUserVideo"
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
-        description: "User id"
+        description: "User Name"
         required: true
-        type: "integer"
-      - name: "videoId"
-        in: "path"
-        description: "Video id to get"
-        required: true
-        type: "integer"
+        type: "string"
       responses:
         '200':
           description: "search results matching criteria"
@@ -240,54 +231,115 @@ paths:
             items:
               $ref: '#/definitions/Video'
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
         "404":
           description: "Video not found"
+    
+  /user/{username}/video/{videoId}:
+    get:
+      tags:
+      - "video"
+      summary: "Find video by ID"
+      description: "Returns a single video"
+      operationId: "getVideoById"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "User name"
+        required: true
+        type: "string"
+      - name: "videoId"
+        in: "path"
+        description: "Video id to get"
+        required: true
+        type: "string"
+      responses:
+        '200':
+          description: "search results matching criteria"
+          schema:
+            items:
+              $ref: '#/definitions/Video'
+        "400":
+          description: "Bad Request"
+        "404":
+          description: "User or Video not found"
+    put:
+      tags:
+      - "video"
+      summary: "Update the likes of a spefiic video"
+      description: ""
+      operationId: "updateVideoLikes"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "User id"
+        required: true
+        type: "string"
+      - name: "videoId"
+        in: "path"
+        description: "Video id to delete"
+        required: true
+        type: "string"
+      - name: "likes"
+        in: "header"
+        description: "New # of likes"
+        required: true
+        type: "integer"
+      responses:
+        '200':
+          description: "search results matching criteria"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
+        "404":
+          description: "User or Video not found"
+      security:
+      - session_cookie: []
     delete:
       tags:
       - "video"
       summary: "Deletes a video for the user"
       description: ""
-      operationId: "deleteVideo"
+      operationId: "delVideoById"
       parameters:
-      - name: "api_key"
-        in: "header"
-        required: true
-        type: "string"
-      - name: "userId"
+      - name: "username"
         in: "path"
         description: "User id"
         required: true
-        type: "integer"
+        type: "string"
       - name: "videoId"
         in: "path"
         description: "Video id to delete"
         required: true
-        type: "integer"
+        type: "string"
       responses:
+        '200':
+          description: "search results matching criteria"
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video not found"
+          description: "User or Video not found"
       security:
-      - video_auth:
-        - "write:video"
-        - "read:video"
+      - session_cookie: []
 
 
-  /user/{userId}/videolist:
+
+  /user/{username}/videolist:
     post:
       tags:
       - "videolist"
-      summary: "Create a video list for the user"
-      description: "This can only be done by the logged in user."
+      summary: "Create a video list for a user"
+      description: "Create a video list for a user"
       operationId: "createVideoList"
       parameters:
         - in: "path"
-          name: "userId"
+          name: "username"
           description: "The id that needs to be fetched."
           required: true
-          type: "integer"
+          type: "string"
         - in: "body"
           name: "body"
           description: "Created videoList object"
@@ -295,82 +347,85 @@ paths:
           schema:
             $ref: '#/definitions/VideoList'
       responses:
-        default:
-          description: "successful operation"
+        '201':
+          description: "created"
+        "400":
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
+        "404":
+          description: "User not found"
       security:
-      - api_key: []
+      - session_cookie: []
     get:
       tags:
         - "videolist"
-      summary: "Find videolist by UserId"
-      description: "Returns all the videos in the videolist"
-      operationId: "getVideoListByUserId"
+      summary: "Get all the videolists of a user"
+      description: "Get all the videolists of a user"
+      operationId: "getUserVideoList"
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
-        description: "User id"
+        description: "User name"
         required: true
-        type: "integer"
+        type: "string"
       responses:
         '200':
           description: "search results matching criteria"
           schema:
-            type: "array"
             items:
-              $ref: '#/definitions/VideoList'
+              $ref: '#/definitions/Video'
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
         "404":
-          description: "Video not found"
-      security:
-      - api_key: []
-  /user/{userId}/videoList/{videoListId}:
+          description: "User not found"
+
+  /user/{username}/videoList/{videoListId}:
     get:
       tags:
       - "videolist"
-      summary: "Find video by videoListId"
-      description: "Returns all the videos in the videolist"
+      summary: "Get the info (videos) of a videolist"
+      description: "Get the info (videos) of a videolist"
       operationId: "getVideoByVideoList"
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
-        description: "User id"
+        description: "User name"
         required: true
-        type: "integer"
+        type: "string"
       - name: "videoListId"
         in: "path"
-        description: "Video id to get"
+        description: "VideoList id to get"
         required: true
-        type: "integer"
+        type: "string"
       responses:
         '200':
           description: "search results matching criteria"
           schema:
-            type: "array"
             items:
-              $ref: '#/definitions/VideoList'
+              $ref: '#/definitions/Video'
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
         "404":
-          description: "Video List not found"
+          description: "User or VideoList not found"
     put:
       tags:
         - "videolist"
-      summary: "Update info for Video List"
-      description: "This can only be done by the logged in user."
+      summary: "Update existing videolist info"
+      description: "Update existing videolist info"
       operationId: "updateVideoList"
 
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
-        description: "User name that need to be updated"
+        description: "User name"
         required: true
-        type: "integer"
+        type: "string"
       - name: "videoListId"
         in: "path"
         description: "Video id to get"
         required: true
-        type: "integer"
+        type: "string"
       - in: "body"
         name: "body"
         description: "Updated user object"
@@ -378,12 +433,16 @@ paths:
         schema:
           $ref: '#/definitions/VideoList'
       responses:
+        '200':
+          description: "Updated"
         "400":
-          description: "Invalid user supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video List not found"
+          description: "User or VideoList not found"
       security:
-      - api_key: []
+      - session_cookie: []
     delete:
       tags:
         - "videolist"
@@ -391,106 +450,101 @@ paths:
       description: ""
       operationId: "deleteVideoList"
       parameters:
-      - name: "api_key"
-        in: "header"
+      - name: "username"
+        in: "path"
+        description: "User name"
         required: true
         type: "string"
-      - name: "userId"
-        in: "path"
-        description: "Video List id"
-        required: true
-        type: "integer"
       - name: "videoListId"
         in: "path"
         description: "Video List Id to delete"
         required: true
-        type: "integer"
+        type: "string"
       responses:
+        '200':
+          description: "Deleted"
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video List not found"
+          description: "User or VideoList not found"
       security:
-      - api_key: []
-  /user/{userId}/videoList/{videoListId}/addVideo:
+      - session_cookie: []
+      
+  /user/{username}/videoList/{videoListId}/addVideo:
     post:
       tags:
       - "videolist"
       summary: "Add video to a videolist"
       operationId: "addVideoToVideoList"
       parameters:
-      - name: "userId"
+      - name: "username"
         in: "path"
-        description: "User id"
+        description: "User name"
         required: true
-        type: "integer"
+        type: "string"
       - name: "videoListId"
         in: "path"
         description: "Video id to get"
         required: true
-        type: "integer"
-      - name: "Video"
+        type: "string"
+      - name: "body"
         in: "body"
+        description: "Created videoList object"
         required: true
         schema:
-          $ref: '#/definitions/Video'
+          $ref: '#/definitions/Video_VideoList'
       responses:
         '200':
-          description: "search results matching criteria"
-          schema:
-            type: "array"
-            items:
-              $ref: '#/definitions/VideoList'
+          description: "Added"
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video List not found"
+          description: "User or VideoList or Video not found"
       security:
-      - api_key: []
-  /user/{userId}/videoList/{videoListId}/deleteVideo/{videoId}:
+      - session_cookie: []
+      
+  /user/{username}/videoList/{videoListId}/deleteVideo:
     delete:
       tags:
         - "videolist"
-      summary: "Deletes a video from videoList"
-      description: ""
-      operationId: "deleteVideoFromVideoList"
+      summary: "Delete a video from a videolist"
+      description: "Delete a video from a videolist"
+      operationId: "delVideoFromVideoList"
       parameters:
-      - name: "api_key"
-        in: "header"
+      - name: "username"
+        in: "path"
+        description: "User name"
         required: true
         type: "string"
-      - name: "userId"
-        in: "path"
-        description: "Video List id"
-        required: true
-        type: "integer"
       - name: "videoListId"
         in: "path"
         description: "Video List Id to delete"
         required: true
-        type: "integer"
-      - name: "videoId"
-        in: "path"
-        description: "Video Id to delete"
+        type: "string"
+      - name: "body"
+        in: "body"
+        description: "Created videoList object"
         required: true
-        type: "integer"
+        schema:
+          $ref: '#/definitions/Video_VideoList'
       responses:
+        '200':
+          description: "Deleted"
         "400":
-          description: "Invalid ID supplied"
+          description: "Bad Request"
+        "401":
+          description: "Unauthurized request"
         "404":
-          description: "Video List not found"
+          description: "User or VideoList or Video not found"
       security:
-      - api_key: []
+      - session_cookie: []
 
 securityDefinitions:
-  video_auth:
-    type: "oauth2"
-    authorizationUrl: "http://videoStore/user/"
-    flow: "implicit"
-    scopes:
-      write:video: "modify videos in your account"
-      read:video: "view your videos"
-  api_key:
+  session_cookie:
     type: "apiKey"
     name: "api_key"
     in: "header"
@@ -499,74 +553,95 @@ definitions:
     User:
       type: "object"
       required:
+        - "userId"
         - "userName"
         - "userPwd"
         - "userEmail"
+        - "createDate"
       properties:
         userId:
-          type: "integer"
-          example: 6
+          type: "string"
+          example: "fb2feabd-aac2-11ec-b658-525400a3fea8"
         userName:
           type: "string"
-          example: 'John'
+          example: 'gwargura'
         userPwd:
           type: "string"
-          example: 'asdf'
+          example: 'sh0rkAAAA++'
         userEmail:
           type: "string"
-          example: 'john@unb.ca'
+          example: 'gwar__gura@gmail.com'
         userCountry:
           type: "string"
-          example: 'Japan'
+          example: 'CANADA'
         createDate:
           type: "string"
           pattern: "YYYY-MM-DD"
           example: '2022-02-31'
+          
     Video:
       type: "object"
       required:
+        - "videoId"
         - "videoTitle"
-        - "videoPath"
+        - "videoSize"
+        - "likes"
+        - "createDate"
+        - "userId"
       properties:
         videoId:
-          type: "integer"
-          example: 6
+          type: "string"
+          example: "574dc2c0-aaf7-11ec-b658-525400a3fea8"
         videoTitle:
           type: "string"
-          example: 'SkipTheDishes is fucked up, stupid ass shit'
-        videoPath:
-          type: "string"
-          example: 'https://www.youtube.com/watch?v=jFCNu1-Xdsw&list=PLlrxD0HtieHhS8VzuMCfQD4uJ9yne1mE6&index=1&t=56s'
+          example: 'minecraft chu'
         videoSize:
-          type: "string"
-          example: '10TB'
-        lastUpdateDate:
-          type: "string"
-          pattern: "YYYY-MM-DD"
-          example: '2022-06-31'
+          type: "integer"
+          example: 100
+        likes:
+          type: "integer"
+          example: 0
         createDate:
           type: "string"
           pattern: "YYYY-MM-DD"
           example: '2022-02-31'
+        userId:
+          type: "string"
+          example: "fb2feabd-aac2-11ec-b658-525400a3fea8"
+          
     VideoList:
       type: "object"
       required:
-        - "videoListName"
+        - "videoListId"
+        - "videoListTitle"
+        - "userId"
       properties:
         videoListId:
-          type: "integer"
-          example: 6
-        videoListName:
           type: "string"
-          example: 'Piano'
+          example: "7f70f65f-ac5f-11ec-b658-525400a3fea8"
+        videoListTitle:
+          type: "string"
+          example: 'holo_EN'
         description:
           type: "string"
-          example: 'This list is for piano videos'
-        videoArray:
-          type: "array"
-          items:
-            $ref: "#/definitions/Video"
-        createDate:
+          example: 'personal album'
+        userId:
           type: "string"
-          pattern: "YYYY-MM-DD"
-          example: '2022-02-31'
+          example: "fb2feabd-aac2-11ec-b658-525400a3fea8"
+        
+    Video_VideoList:
+      type: "object"
+      required:
+        - "userId"
+        - "videoId"
+        - "videoListId"
+      properties:
+        userId:
+          type: "string"
+          example: "e1e858f0-aac2-11ec-b658-525400a3fea8"
+        videoId:
+          type: "string"
+          example: "2f050dce-aaf0-11ec-b658-525400a3fea8"
+        videoListId:
+          type: "string"
+          example: "b21224ab-ac70-11ec-b658-525400a3fea8"
