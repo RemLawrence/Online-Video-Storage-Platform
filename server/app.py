@@ -108,12 +108,12 @@ class SignIn(Resource):
 							responseCode = 201
 						except LDAPException:
 							response = {'status': 'Access denied'}
-							responseCode = 403
+							responseCode = 401
 						finally:
 							ldapConnection.unbind()
 					else:
 						response = {'status': 'Username or password not correct'}
-						responseCode = 403
+						responseCode = 401
 				except:
 					abort(400) # bad request
 
@@ -133,7 +133,7 @@ class SignIn(Resource):
 			response = {'status': 'success', 'user in session': username}
 			responseCode = 200
 		else:
-			abort(403)
+			abort(401)
 
 		return make_response(jsonify(response), responseCode)
 
@@ -150,7 +150,7 @@ class SignIn(Resource):
 			response = {'status': 'success', 'deleted username in session': username}
 			responseCode = 200
 		else:
-			abort(403)
+			abort(401)
 
 		return make_response(jsonify(response), responseCode)
 
@@ -233,9 +233,9 @@ class UserWithName(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 		
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -284,9 +284,9 @@ class UserWithName(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 
 		try:
 			cursor = mysql.cursor()
@@ -319,9 +319,9 @@ class VideoInit(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -458,9 +458,9 @@ class VideoSpec(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 		
 		try:
 			cursor = mysql.cursor()
@@ -495,9 +495,9 @@ class VideoListInit(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 		
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -595,9 +595,9 @@ class VideoList(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -641,9 +641,9 @@ class VideoList(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 
 		try:
 			cursor = mysql.cursor()
@@ -677,9 +677,9 @@ class AddVideoToVideoList(Resource):
 		if 'username' in session:
 			username = session['username']
 			if(username != _userName):
-				abort(403)
+				abort(401)
 		else:
-			abort(403)
+			abort(401)
 
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
@@ -718,6 +718,14 @@ class DelVideoFromVideoList(Resource):
 	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/deleteVideo
 	def delete(self, _userName, _videoListId):
+		# Auth check
+		if 'username' in session:
+			username = session['username']
+			if(username != _userName):
+				abort(401)
+		else:
+			abort(401)
+
 		if not request.json: # If the requested object is not in json format
 			abort(400) # bad request
 		

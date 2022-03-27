@@ -1,8 +1,4 @@
-TODO: 
-5. Modify docs
-
-
-Curl Test Plan:
+Curl Test Plan for the endpoints:
 
 1. Create session cookie, aka Login user:
    Endpoint: POST /signin
@@ -12,11 +8,11 @@ Curl Test Plan:
 
     Case 2: Username unmatched:
     curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ina_nis", "password": "sh0rkAAAA++"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/signin
-    Response: 401
+    Response: 403
 
     Case 3: Password unmatched:
     curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ina_nis", "password": "sh0rkAAAA++"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/signin
-    Response: 401
+    Response: 403
 
 
 2. (AUTH REQUIRED) Get session cookie:
@@ -27,7 +23,7 @@ Curl Test Plan:
 
     Case 2: No user exist in cookie (Doesn't do #1 Case 1):
     curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k https://cs3103.cs.unb.ca:61340/signin
-    Response: 401
+    Response: 403
 
 
 3. (AUTH REQUIRED) Delete session cookie, aka Logout user: 
@@ -38,7 +34,7 @@ Curl Test Plan:
 
     Case 2: There's no cookie, yet (Doesn't do #1 Case 1):
     curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:61340/signin
-    Response: 401
+    Response: 403
 
 
 4. Signup, or aka create a new user
@@ -80,7 +76,7 @@ Curl Test Plan:
     Case 3: Update an existing user's info (Doesn't do #1 Case 1):
     Case 1: Update an existing user's info upon logged in (Do #1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X PUT -d '{"username":"gwargura", "password":"sh0rkAAAA++", "email": "gwargura@gmail.com", "country": "CANADA"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura
-    Response: 401
+    Response: 403
 
 
 7. (AUTH REQUIRED) Delete a user
@@ -90,7 +86,7 @@ Curl Test Plan:
 
    Case 2: Delete a non-existing user:
    curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/moon
-   Response: 401
+   Response: 403
 
    Case 3: Delete an existing user without logged in (Doesn't do #1 Case 1):
    curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwarguraa
@@ -105,7 +101,7 @@ Curl Test Plan:
 
     Case 2: Upload a video for an existing user upon logged in (Doesn't do #1 Case 1):
     curl -i -H "Content-Type: application/json" -X POST -d '{"title":"debut stream archieve", "size": 2000}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
-    Response: 401
+    Response: 403
 
 
 9. Retrieve all videos of a user
@@ -161,7 +157,7 @@ Curl Test Plan:
 
     Case 2: Delete another user's video (Doesn't do #1 Case 1):
     curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
-    Response: 401
+    Response: 403
 
     Case 3: Delete a user's video upon logged in, but with invalid videoid:
     curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video/1
@@ -176,7 +172,7 @@ Curl Test Plan:
 
     Case 2: Create a videolist for a user without logged in (Doesn't #1 Case 1):
     curl -i -H "Content-Type: application/json" -X POST -d '{"name":"comforting piano", "description":"just a collection of piano music"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist
-    Response: 401
+    Response: 403
 
 
 14. Get all the videolists of a user
@@ -221,7 +217,7 @@ Curl Test Plan:
 
     Case 3: Update the videolist info of a user upon logged in with invalid videolistid (Doesn't do #1 Case):
     curl -i -H "Content-Type: application/json" -X PUT -d '{"name":"comforting piano nyo", "description":"just a collection of piano music"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea8
-    Respones: 401
+    Respones: 403
 
 
 17. (AUTH REQUIRED) Delete a videolist of a user
@@ -232,7 +228,7 @@ Curl Test Plan:
 
     Case 2: Delete a videolist for a user without logging in (Doesn't do # 1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea
-    Response: 401
+    Response: 403
 
     Case 3: Delete a videolist for a user upon logged in, but with invalid videolistid (Do #1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/1
@@ -247,7 +243,7 @@ Curl Test Plan:
 
     Case 2: Add a video to a videolist without logging in (Doesn't do # 1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X POST -d '{"videoId":"2f050dce-aaf0-11ec-b658-525400a3fea8"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea8/addVideo
-    Response: 401
+    Response: 403
 
     Case 3: Add a video to a videolist upon logged in, but with invalid videolistid (Do #1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X POST -d '{"videoId":"574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/1/addVideo
@@ -266,7 +262,7 @@ Curl Test Plan:
 
     Case 2: Delete a video from a videolist without logging in (Doesn't do #1 Case 1):
     curl -i -H "Content-Type: application/json" -X DELETE -d '{"videoId":"2f050dce-aaf0-11ec-b658-525400a3fea8"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/videolist/b21224ab-ac70-11ec-b658-525400a3fea8/deleteVideo
-    Response: 401
+    Response: 403
 
     Case 3: Delete a video from a videolist upon logged in, but with invalid videolistid (Do #1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X DELETE -d '{"videoId":"574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/1/deleteVideo
@@ -275,6 +271,3 @@ Curl Test Plan:
     Case 3: Delete a video from a videolist upon logged in, but with invalid videoid (Do #1 Case 1 first):
     curl -i -H "Content-Type: application/json" -X DELETE -d '{"videoId":"1"}' -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/7f70f65f-ac5f-11ec-b658-525400a3fea8/deleteVideo
     Response: 404
-
-
-
