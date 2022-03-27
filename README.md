@@ -1,4 +1,4 @@
-![ER Diagram](http://url/to/img.png)
+![ER Diagram](https://github.com/RemLawrence/Online-Video-Storage-Platform/blob/main/docs/ERD.png)
 
 All Stored Procedures:
 1. loginUser: Check username and password
