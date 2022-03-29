@@ -7,12 +7,14 @@ import json
 from ldap3 import Server, Connection, ALL
 from ldap3.core.exceptions import *
 import ssl #include ssl libraries
+from flask_cors import CORS
 
 import pymysql.cursors 
 
 import settings # Our server and db settings, stored in settings.py
 
 app = Flask(__name__)
+CORS(app)
 # Set Server-side session config: Save sessions in the local app directory.
 app.secret_key = settings.SECRET_KEY
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -116,7 +118,6 @@ class SignIn(Resource):
 						responseCode = 401
 				except:
 					abort(400) # bad request
-
 			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
@@ -193,7 +194,9 @@ class SignUp(Resource):
 				responseCode = 201
 			else:
 				abort(400)
+
 			return make_response(jsonify(response), responseCode)
+
 		except:
 			abort(400) # bad request
 
@@ -219,6 +222,7 @@ class UserWithName(Resource):
 			else:
 				response = {'status': 'User not found'}
 				responseCode = 404
+				
 			return make_response(jsonify(response), responseCode)
 		except:
 			abort(400) # bad request
