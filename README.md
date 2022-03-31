@@ -1,3 +1,9 @@
+TODO:
+0. No response when sign up?
+1. Password strength check
+2. Back to login button
+3. Can't add ' and space in username/pwd/email
+
 ![ER Diagram](https://github.com/RemLawrence/Online-Video-Storage-Platform/blob/main/docs/ERD.png)
 
 All Stored Procedures:

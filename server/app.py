@@ -16,9 +16,9 @@ import settings # Our server and db settings, stored in settings.py
 app = Flask(__name__)
 CORS(app)
 # Set Server-side session config: Save sessions in the local app directory.
-app.secret_key = settings.SECRET_KEY
+app.config['SECRET_KEY'] = settings.SECRET_KEY
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_COOKIE_NAME'] = 'peanutButter'
+app.config['SESSION_COOKIE_NAME'] = 'what'
 app.config['SESSION_COOKIE_DOMAIN'] = settings.APP_HOST
 Session(app)
 
@@ -143,6 +143,7 @@ class SignIn(Resource):
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:61340/signin
 	def delete(self):
+
 		# Auth check
 		if 'username' in session:
 			username = session['username']
