@@ -10,6 +10,7 @@ window.onload = function() {
       //------- data --------
       data: {
         serviceURL: "https://cs3103.cs.unb.ca:31308",
+        alertDuration: 300,
         authenticated: false,
         ifSignUp: false,
         //schoolsData: null,
@@ -19,12 +20,16 @@ window.onload = function() {
           username: "",
           password: ""
         },
+        loginSuccess: false,
+        mustpresent: false,
+        loginIncorrect: false,
         signupInput: {
           username: "",
           password: "",
           email: "",
           country: ""
-        }
+        },
+        signupSuccess: false
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -44,6 +49,9 @@ window.onload = function() {
       //------- methods --------
       methods: {
         login() {
+          this.loginSuccess = false;
+          this.mustpresent = false;
+          this.loginIncorrect = false;
           //axios.defaults.withCredentials = true;
           if (this.loginInput.username != "" && this.loginInput.password != "") {
             axios
@@ -53,16 +61,18 @@ window.onload = function() {
             })
             .then(response => {
                 if (response.data.status == "success") {
+                  this.loginSuccess = true;
                   this.authenticated = true;
                   this.loggedIn = response.data.user_id;
                 }
             })
             .catch(e => {
                 this.loginInput.password = "";
-                console.log(e);
+                this.loginIncorrect = true;
             });
           } else {
-            alert("A username and password must be present");
+            //alert("A username and password must be present");
+            this.mustpresent = true;
           }
         },
     
@@ -93,7 +103,11 @@ window.onload = function() {
               })
               .then(response => {
                   if (response.data.status == "created") {
-                    
+                    // alert("User Created! Directing to login page...");
+                    this.signupSuccess = true;
+                    setTimeout(function() {
+                      location.reload();
+                    }, 3000);
                   }
               })
               .catch(e => {
@@ -111,7 +125,12 @@ window.onload = function() {
               })
               .then(response => {
                   if (response.data.status == "created") {
-
+                    // alert("User Created! Directing to login page...") ;
+                    this.signupSuccess = true;
+                    setTimeout(function() {
+                      location.reload();
+                    }, 3000);
+                    this.signupSuccess = false;
                   }
               })
               .catch(e => {

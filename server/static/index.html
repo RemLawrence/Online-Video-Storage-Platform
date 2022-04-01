@@ -28,7 +28,7 @@
         <input class="col-4 mx-auto form-control" type="text" name="username" v-model="signupInput.username" placeholder="Username" />
         <input class="col-4 mx-auto form-control" type="password" name="password" v-model="signupInput.password" placeholder="Password" />
         <input class="col-4 mx-auto form-control" type="email" name="email" v-model="signupInput.email" placeholder="Email" />
-        <select class="col-4 mx-auto form-control" data-show-subtext="true" data-live-search="true" name="country" v-model="signupInput.country" placeholder="Canada">
+        <select class="col-4 mx-auto form-control" data-show-subtext="true" data-live-search="true" name="country" v-model="signupInput.country" placeholder="Country">
           <option value="Afganistan">Afghanistan</option>
           <option value="Albania">Albania</option>
           <option value="Algeria">Algeria</option>
@@ -276,13 +276,28 @@
           <option value="Zambia">Zambia</option>
           <option value="Zimbabwe">Zimbabwe</option>
        </select>
-        <button class="col-4 btn btn-outline-success" type="button" v-on:click="signup()">Sign Up</button>
+        <button class="col-4 btn btn-outline-warning" type="button" v-on:click="signup()">Sign Up</button>
+        <div v-if="signupSuccess" class="alert alert-success" role="alert">
+          <h4 class="alert-heading">Congraulations! You're registered with us!</h4>
+          <p>Just wait for us to process your account and direct you to the login page.</p>
+          <hr>
+          <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and tidy.</p>
         </div>
+      </div>
       <div v-else>
         <div v-if="!authenticated" class="form-group text-center">
           <input class="col-4 mx-auto form-control" type="text" name="username" v-model="loginInput.username" placeholder="Username" />
           <input class="col-4 mx-auto form-control" type="password" name="password" v-model="loginInput.password" placeholder="Password" />
           <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+          <div v-if="loginSuccess" class="alert alert-success">
+            <strong>Success!</strong> You are successfully authenticated with our app! <strong>Enjoy!</strong></a>.
+          </div>
+          <div v-if="mustpresent" class="alert alert-danger" role="alert">
+            A username and password must be present.
+          </div>
+          <div v-if="loginIncorrect" class="alert alert-danger" role="alert">
+            Login Unsuccessful. Check your username or password.
+          </div>
         </div>
         <div v-else class="text-center">
           <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>

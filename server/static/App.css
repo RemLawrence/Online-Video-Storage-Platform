@@ -5,3 +5,11 @@
 #signup {
     float: right;
 }
+
+.alert {
+    margin-top: 2.75rem;
+}
+
+.form-control {
+    margin: 0.5rem 0 0.5rem 0;
+}
