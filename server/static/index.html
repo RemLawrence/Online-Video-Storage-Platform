@@ -14,8 +14,11 @@
   <script src="https://kit.fontawesome.com/111f919a64.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="App.js"></script>
   <link rel="stylesheet" href="App.css"/>
-  <!-- The above 2 meta tags *must* come first in the head; any other head content must
-  come *after* these tags -->
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&family=Ubuntu:wght@300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
   <title>Video Sharing Platform</title>
   </head>
   <body>
@@ -24,8 +27,10 @@
         <button id="signup" class="col-2 btn btn-outline-warning" type="button" v-on:click="signupbtn()">Sign Up</button>
       </div>
       <div class="jumbotron jumbotron-fluid text-center">
-        <h1><i class="fab fa-vuejs"></i>ideo Sh<i class="fab fa-angular"></i>ring Platfo<i class="fab fa-react"></i>m.<sup><small>SPA</small></sup></sup></h1>
-        <p><em>Refer to the video you like on YouTube!</em></p>
+        <div id="title">
+          <h1><i class="fab fa-vuejs"></i>ideo Sh<i class="fab fa-angular"></i>ring Platfo<i class="fab fa-react"></i>m.<sup><small>SPA</small></sup></sup></h1>
+          <p><em>Refer to the video you like on YouTube!</em></p>
+        </div>
       <div v-if="ifSignUp" class="form-group text-center">
         <input class="col-4 mx-auto form-control" type="text" name="username" v-model="signupInput.username" placeholder="Username" />
         <input class="col-4 mx-auto form-control" type="password" name="password" v-model="signupInput.password" placeholder="Password" />
@@ -303,6 +308,28 @@
         </div>
         <div v-else class="text-center">
           <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>
+          <form id="searchUser_form" class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search User..." v-model="searchedUsername" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit" v-on:click="searchUserWithName()">Go!</button>
+          </form>
+          <div v-if="searchUserAlert" class="alert alert-danger" role="alert">
+            The user does not exist. Try again?
+          </div>
+          <div v-if="showSearchUser" id="usercard" class="d-flex w-100">
+            <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title"><b>{{searchedUser.Name}}</b></h5>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item"><b>Country:</b> <span class="userinfo">{{searchedUser.Country}}</span></li>
+                <li class="list-group-item"><b>Join Date:</b> <span class="userinfo">{{searchedUser.JoinDate}}</span></li>
+              </ul>
+              <div class="card-body">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" v-on:click="searchUserWithName()">{{searchedUsername}}</button>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" v-on:click="searchUserWithName()">{{searchedUsername}}</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

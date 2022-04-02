@@ -13,3 +13,18 @@
 .form-control {
     margin: 0.5rem 0 0.5rem 0;
 }
+
+.form-inline {
+    justify-content: center;
+}
+
+/* The entire user card */
+#usercard {
+    justify-content: center;
+    font-family: 'Lato', sans-serif;
+}
+
+/* User information in the list */
+.userinfo {
+    font-family: 'Gloria Hallelujah', cursive;
+}

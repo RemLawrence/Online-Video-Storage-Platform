@@ -11,6 +11,7 @@ window.onload = function() {
       data: {
         serviceURL: "https://cs3103.cs.unb.ca:31308",
         alertDuration: 300,
+
         authenticated: false,
         ifSignUp: false,
         //schoolsData: null,
@@ -23,13 +24,19 @@ window.onload = function() {
         loginSuccess: false,
         mustpresent: false,
         loginIncorrect: false,
+
         signupInput: {
           username: "",
           password: "",
           email: "",
           country: ""
         },
-        signupSuccess: false
+        signupSuccess: false,
+
+        searchedUsername: "",
+        searchUserAlert: false,
+        showSearchUser: false,
+        searchedUser: ""
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -48,8 +55,11 @@ window.onload = function() {
       // },
       //------- methods --------
       methods: {
+        /* 1. POST: Set Session and return Cookie
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X POST -d '{"username": "gwargura", "password": "sh0rkAAAA++"}'
+        #  	-c cookie-jar -k https://cs3103.cs.unb.ca:31308/signin */
         login() {
-          this.loginSuccess = false;
           this.mustpresent = false;
           this.loginIncorrect = false;
           //axios.defaults.withCredentials = true;
@@ -75,7 +85,11 @@ window.onload = function() {
             this.mustpresent = true;
           }
         },
-    
+        
+        /* 3. DELETE: Check Cookie data with Session data (logout?)
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:61340/signin */
         logout() {
           axios
           .delete(this.serviceURL+"/signin")
@@ -90,7 +104,11 @@ window.onload = function() {
         signupbtn() {
           this.ifSignUp = true;
         },
-
+        
+        /* 4. POST: Create a new user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ameliawatson", "password": "ameame22", 
+        # "email": "ame_holoEN@gmail.com", "country": "UK"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/signup */
         signup() {
           if (this.signupInput.username != "" && this.signupInput.password != "" && this.signupInput.email != "") {
             if(this.signupInput.country != ""){
@@ -103,7 +121,6 @@ window.onload = function() {
               })
               .then(response => {
                   if (response.data.status == "created") {
-                    // alert("User Created! Directing to login page...");
                     this.signupSuccess = true;
                     setTimeout(function() {
                       location.reload();
@@ -125,7 +142,6 @@ window.onload = function() {
               })
               .then(response => {
                   if (response.data.status == "created") {
-                    // alert("User Created! Directing to login page...") ;
                     this.signupSuccess = true;
                     setTimeout(function() {
                       location.reload();
@@ -141,9 +157,39 @@ window.onload = function() {
           } else {
             alert("A username, password and email must be presented");
           }
+        },
+        
+        /* # 5. GET: Get a specific user via username
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:31308/ */
+        searchUserWithName() {
+          $("#searchUser_form").submit(function(e) {
+            e.preventDefault();
+          });
+          this.showSearchUser = false;
+          this.searchUserAlert = false;
+          if(this.searchedUsername != "") {
+            axios
+            .get(this.serviceURL+"/user/"+this.searchedUsername)
+            .then(response => {
+              if (response.data.status == "success") {
+                this.showSearchUser = true;
+                this.searchedUser = response.data.User;
+              }
+            })
+            .catch(e => {
+              this.searchUserAlert = true;
+              console.log(e);
+            });
         }
+        else {
+          this.searchUserAlert = true;
+        }
+      }
+          
     
-    
+        
       //   fetchSchools() {
       //     axios
       //     .get(this.serviceURL+"/schools")

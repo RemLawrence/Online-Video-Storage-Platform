@@ -64,7 +64,7 @@ def not_found(error):
 # Routing: GET and POST using Flask-Session
 #
 class SignIn(Resource):
-	# 1. POST: Set Session and return Cookie
+	# (✓) 1. POST: Set Session and return Cookie
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "gwargura", "password": "sh0rkAAAA++"}'
 	#  	-c cookie-jar -k https://cs3103.cs.unb.ca:31308/signin
@@ -138,7 +138,7 @@ class SignIn(Resource):
 
 		return make_response(jsonify(response), responseCode)
 
-	# 3. DELETE: Check Cookie data with Session data (logout?)
+	# (✓) 3. DELETE: Check Cookie data with Session data (logout?)
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:61340/signin
@@ -159,7 +159,7 @@ class SignIn(Resource):
 
 # class GeneralUser
 class SignUp(Resource):
-	# 4. POST: Create a new user
+	# (✓) 4. POST: Create a new user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d '{"username": "ameliawatson", "password": "ameame22", 
 	# "email": "ame_holoEN@gmail.com", "country": "UK"}' -c cookie-jar -k https://cs3103.cs.unb.ca:31308/signup
@@ -202,7 +202,7 @@ class SignUp(Resource):
 			abort(400) # bad request
 
 class UserWithName(Resource):
-	# 5. GET: Get a specific user via username
+	# (✓) 5. GET: Get a specific user via username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura
@@ -217,7 +217,7 @@ class UserWithName(Resource):
 				for row in user:
 					returnedUser = {"Name": str(row['userName']), 
 					"Country": str(row['userCountry']), 
-					"Join Date": str(row['createDate'])}
+					"JoinDate": str(row['createDate'])}
 				response = {'status': 'success', 'User': returnedUser}
 				responseCode = 200
 			else:
