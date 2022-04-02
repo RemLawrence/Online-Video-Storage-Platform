@@ -9,12 +9,14 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"/>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+  <!-- Font Awesome -->
+  <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+  <script src="https://kit.fontawesome.com/111f919a64.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="App.js"></script>
   <link rel="stylesheet" href="App.css"/>
-
-    <!-- The above 2 meta tags *must* come first in the head; any other head content must
-    come *after* these tags -->
-    <title>Video Sharing Platform</title>
+  <!-- The above 2 meta tags *must* come first in the head; any other head content must
+  come *after* these tags -->
+  <title>Video Sharing Platform</title>
   </head>
   <body>
     <div class="container-fluid" id="app">
@@ -22,8 +24,8 @@
         <button id="signup" class="col-2 btn btn-outline-warning" type="button" v-on:click="signupbtn()">Sign Up</button>
       </div>
       <div class="jumbotron jumbotron-fluid text-center">
-        <h1>Splendid Video Sharing Platform.<sup><small>TM</small></sup></sup></h1>
-        <p><em>Upload your own video!</em></p>
+        <h1><i class="fab fa-vuejs"></i>ideo Sh<i class="fab fa-angular"></i>ring Platfo<i class="fab fa-react"></i>m.<sup><small>SPA</small></sup></sup></h1>
+        <p><em>Refer to the video you like on YouTube!</em></p>
       <div v-if="ifSignUp" class="form-group text-center">
         <input class="col-4 mx-auto form-control" type="text" name="username" v-model="signupInput.username" placeholder="Username" />
         <input class="col-4 mx-auto form-control" type="password" name="password" v-model="signupInput.password" placeholder="Password" />
