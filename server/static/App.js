@@ -43,6 +43,7 @@ window.onload = function() {
         ytbIdValid: false,
         videoAddedSuccess: false,
         videoAddedFail: false,
+        videoAddedDuplicate: false,
         showVideoImage: false,
 
         isAddVideoList: false
@@ -209,12 +210,13 @@ window.onload = function() {
       addVideo() {
         this.videoAddedSuccess = false;
         this.videoAddedFail = false;
+        this.videoAddedDuplicate = false;
         if (this.ytbId != "") {
           this.validVideoId(this.ytbId);
           if(this.ytbIdValid){
             axios
             .post(this.serviceURL + "/user/" + this.loginInput.username + "/video", {
-                "title": this.ytbId,
+                "id": this.ytbId,
                 "size": 0
             })
             .then(response => {
@@ -223,7 +225,7 @@ window.onload = function() {
                 }
             })
             .catch(e => {
-                this.videoAddedFail = true; 
+                this.videoAddedDuplicate = true; 
             });
           } else {
           this.videoAddedFail = true; 

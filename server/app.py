@@ -318,7 +318,7 @@ class UserWithName(Resource):
 class VideoInit(Resource):
 	# 8. POST: Create a video for a specific user
 	# Example curl command:
-	# curl -i -H "Content-Type: application/json" -X POST -d '{"title":"minecraft chu", "size": 200}' 
+	# curl -i -H "Content-Type: application/json" -X POST -d '{"id":"yqWzCV0kU_c", "size": 200}' 
 	# -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
 	def post(self, _userName):
 		# Auth check
@@ -335,7 +335,7 @@ class VideoInit(Resource):
 		parser = reqparse.RequestParser()
 		try:
  			# Check for required attributes in json document, create a dictionary
-			parser.add_argument('title', type=str, required=True)
+			parser.add_argument('id', type=str, required=True)
 			parser.add_argument('size', type=str, required=True)
 			request_params = parser.parse_args()
 		except:
@@ -343,15 +343,15 @@ class VideoInit(Resource):
 
 		try:
 			cursor = mysql.cursor()
-			_videoTitle = request_params['title']
+			_videoId = request_params['id']
 			_videoSize = request_params['size']
-			param = "CALL createVideo('" +  _userName + "', '" + _videoTitle + "', '" + str(_videoSize) + "')"
+			param = "CALL createVideo('" +  _userName + "', '" + _videoId + "', '" + str(_videoSize) + "')"
 			cursor.execute(param)
 			mysql.commit()
 			lastId = cursor.fetchall()
 			if(len(lastId) == 1):
 				for row in lastId:
-					_videoId = str(row['LAST_INSERT_ID()'])
+					videoId = str(row['LAST_INSERT_ID()'])
 				response = {'status': 'created'}
 				responseCode = 201
 			else:
@@ -375,7 +375,7 @@ class VideoInit(Resource):
 				i = 0
 				video = [0] * len(videos)
 				for row in videos:
-					video[i] = {"title": str(row['videoTitle']), 
+					video[i] = {"id": str(row['videoId']), 
 					"size": str(row['videoSize']), 
 					"likes": str(row['likes']), 
 					"Upload Date": str(row['uploadDate'])}

@@ -343,6 +343,9 @@
               <div v-if="videoAddedFail" class="alert alert-danger" role="alert">
                 You just put an invalid YouTube video Id.
               </div>
+              <div v-if="videoAddedDuplicate" class="alert alert-warning" role="alert">
+                You already had this video!
+              </div>
               <div v-if="videoAddedSuccess" class="alert alert-success" role="alert">
                 You've successfully added your video!
               </div>

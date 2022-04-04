@@ -3,7 +3,7 @@ DROP PROCEDURE IF EXISTS createVideo //
 CREATE PROCEDURE createVideo
 (
     USER_NAME VARCHAR(20),
-    TITLE VARCHAR(100),
+    ID VARCHAR(36),
     SIZE FLOAT
 )
 
@@ -13,14 +13,12 @@ BEGIN
    /* Do the INSERT */
    INSERT INTO video (
       videoId,
-      videoTitle, 
       videoSize, 
       likes, 
       uploadDate,
       userId
    ) VALUES (
-      UUID(),
-      TITLE,
+      ID,
       SIZE,
       0,
       CURDATE(),
