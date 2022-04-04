@@ -122,7 +122,7 @@ class SignIn(Resource):
 		except:
 			abort(400) # bad request
 
-	# 2. GET: Check Cookie data with Session data
+	# (✕) 2. GET: Check Cookie data with Session data
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	# 	-k https://cs3103.cs.unb.ca:61340/signin
@@ -391,7 +391,7 @@ class VideoInit(Resource):
 
 # class Video
 class VideoSpec(Resource):
-	# 10. GET: Get a user's video
+	# (✕) 10. GET: Get a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8
@@ -417,7 +417,7 @@ class VideoSpec(Resource):
 		except:
 			abort(400) # bad request
 
-	# 11. PUT: Update the likes of a spefiic video
+	# (✕) 11. PUT: Update the likes of a spefiic video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d '{"likes":1}' -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/video/574dc2c0-aaf7-11ec-b658-525400a3fea8

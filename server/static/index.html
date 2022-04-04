@@ -316,7 +316,8 @@
             The user does not exist. Try again?
           </div>
           <div v-if="showSearchUser" id="usercard" class="d-flex w-100">
-            <div class="card" style="width: 18rem;">
+            
+            <div class="card" style="width: 28rem;">
               <div class="card-body">
                 <h5 class="card-title"><b>{{searchedUser.Name}}</b></h5>
               </div>
@@ -325,9 +326,29 @@
                 <li class="list-group-item"><b>Join Date:</b> <span class="userinfo">{{searchedUser.JoinDate}}</span></li>
               </ul>
               <div class="card-body">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" v-on:click="searchUserWithName()">{{searchedUsername}}</button>
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" v-on:click="searchUserWithName()">{{searchedUsername}}</button>
+                <button class="btn btn-primary my-2 my-sm-0">Check Videos</button>
+                <button class="btn btn-info my-2 my-sm-0">Check VideoLists</button>
               </div>
+            </div>
+          </div>
+          
+          <div class="addvideo_videolist">
+            <button class="col-4 btn btn-primary" type="button" v-on:click="gonnaaddvideo()">Add Video!</button>
+            <button class="col-4 btn btn-secondary" type="button" v-on:click="gonnaaddvideolist()">Add VideoList.</button>
+            <div v-if="isAddVideo">
+              <span>YouTube Video Id:</span>
+              <input class="col-4 mx-auto form-control" type="text" name="ytbId" v-model="ytbId" />
+              <img id="ytbImage" v-if="showVideoImage" v-bind:src="'http://img.youtube.com/vi/' + ytbId + '/mqdefault.jpg'">
+              <button id="addVideo" class="col-1 btn btn-success" type="button" v-on:click="addVideo()">Add!</button>
+              <div v-if="videoAddedFail" class="alert alert-danger" role="alert">
+                You just put an invalid YouTube video Id.
+              </div>
+              <div v-if="videoAddedSuccess" class="alert alert-success" role="alert">
+                You've successfully added your video!
+              </div>
+            </div>
+            <div v-if="isAddVideoList">
+
             </div>
           </div>
         </div>

@@ -2,6 +2,11 @@ TODO:
 1. Password strength check
 2. Back to login button (back button)
 3. Can't add ' and space in username/pwd/email
+4. Give user card some style (outline? bg-Color?)
+5. Dude, there's no way to know which users we have.
+
+6. Video - Check duplicate
+7. Video - hint image
 
 ![ER Diagram](https://github.com/RemLawrence/Online-Video-Storage-Platform/blob/main/docs/ERD.png)
 

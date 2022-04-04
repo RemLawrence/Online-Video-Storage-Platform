@@ -36,7 +36,16 @@ window.onload = function() {
         searchedUsername: "",
         searchUserAlert: false,
         showSearchUser: false,
-        searchedUser: ""
+        searchedUser: "",
+
+        isAddVideo: false,
+        ytbId: "",
+        ytbIdValid: false,
+        videoAddedSuccess: false,
+        videoAddedFail: false,
+        showVideoImage: false,
+
+        isAddVideoList: false
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -186,27 +195,42 @@ window.onload = function() {
         else {
           this.searchUserAlert = true;
         }
-      }
-          
-    
-        
-      //   fetchSchools() {
-      //     axios
-      //     .get(this.serviceURL+"/schools")
-      //     .then(response => {
-      //         this.schoolsData = response.data.schools;
-      //     })
-      //     .catch(e => {
-      //       alert("Unable to load the school data");
-      //       console.log(e);
-      //     });
-      //   },
-    
-      //   deleteSchool(schoolId) {
-      //     alert("This feature not available until YOUR version of schools.")
-      //   },
-    
-    
+      },
+
+      gonnaaddvideo() {
+        this.isAddVideo = true;
+        this.showVideoImage = true;
+      },
+
+      /* 8. POST: Create a video for a specific user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X POST -d '{"title":"minecraft chu", "size": 200}' 
+        # -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video */
+      addVideo() {
+        this.videoAddedSuccess = false;
+        this.videoAddedFail = false;
+        if (this.ytbId != "") {
+          this.validVideoId(this.ytbId);
+          if(this.ytbIdValid){
+            axios
+            .post(this.serviceURL + "/user/" + this.loginInput.username + "/video", {
+                "title": this.ytbId,
+                "size": 0
+            })
+            .then(response => {
+                if (response.data.status == "created") {
+                  this.videoAddedSuccess = true;
+                }
+            })
+            .catch(e => {
+                this.videoAddedFail = true; 
+            });
+          } else {
+          this.videoAddedFail = true; 
+          }
+        }
+      },
+
       //   selectSchool(schoolId) {
       //       this.showModal();
       //     for (x in this.schoolsData) {
@@ -215,22 +239,20 @@ window.onload = function() {
       //       }
       //     }
       //   },
-    
-    
-      //   updateSchool(updatedSchool) {
-      //     alert("This feature not available until YOUR version of schools.")
-      //     // TODO: use axios.update to send the updated record to the service
-      //   },
-    
-      //   showModal() {
-      //     this.editModal = true;
-      //   },
-    
-    
-      //   hideModal() {
-      //     this.editModal = false;
-      //   }
-    
+
+        /* Helper function. Checks if the entered Youtube id is valid 
+          Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
+        validVideoId(id) {
+          var img = document.getElementById('ytbImage'); 
+
+          if (img.clientWidth === 120) {
+            this.ytbIdValid = false;
+          }
+          else if(img.clientWidth === 320) {
+            this.ytbIdValid = true;
+          }
+
+        }
       }
       //------- END methods --------
     

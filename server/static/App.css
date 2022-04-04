@@ -28,3 +28,9 @@
 .userinfo {
     font-family: 'Gloria Hallelujah', cursive;
 }
+
+#ytbImage {
+    border: 2px dashed #83cee0;
+    display: block;
+    margin: 1.75rem auto;
+}
