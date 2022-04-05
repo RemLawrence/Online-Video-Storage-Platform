@@ -328,7 +328,22 @@
                 <li class="list-group-item"><b>Join Date:</b> <span class="userinfo">{{searchedUser.JoinDate}}</span></li>
               </ul>
               <div class="card-body">
-                <button class="btn btn-info my-2 my-sm-0">Check VideoLists</button>
+                <button class="btn btn-info my-2 my-sm-0" v-on:click="showUserVideoList()">Check VideoLists</button>
+                <div v-if="showUserVideoLists" v-for="videolist in uservideolists">
+                  <div class="card">
+                    <div class="card-header">
+                      {{videolist.id}}
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title">{{videolist.name}}</h5>
+                      <p class="card-text">{{videolist.description}}</p>
+                      <a href="#" class="btn btn-primary">Check Videos</a>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="noUserVideoList" class="alert alert-warning" role="alert">
+                  This user does not have any videolist.
+                </div>
               </div>
             </div>
           </div>

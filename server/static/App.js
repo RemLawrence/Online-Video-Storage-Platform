@@ -37,6 +37,9 @@ window.onload = function() {
         searchUserAlert: false,
         showSearchUser: false,
         searchedUser: "",
+        showUserVideoLists: false,
+        uservideolists: "",
+        noUserVideoList: false,
 
         isAddVideo: false,
         ytbId: "",
@@ -58,7 +61,7 @@ window.onload = function() {
         noVideo: false,
         showOwnVideoLists: false,
         videolists: "",
-        noVideoList: false
+        noVideoList: false,
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -188,6 +191,10 @@ window.onload = function() {
         searchUserWithName() {
           this.turnOffAdd();
           this.turnOffGet();
+          /* Once a new search, the user card needs to be cleared about the videolists */
+          this.showUserVideoLists = false;
+          this.noUserVideoList = false;
+          
           $("#searchUser_form").submit(function(e) {
             e.preventDefault();
           });
@@ -346,6 +353,27 @@ window.onload = function() {
           });
       },
 
+      /* 14. GET: Get all the videolists of a user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist */
+        showUserVideoList() {
+          this.turnOffAdd();
+          this.turnOffGet();
+  
+          axios
+          .get(this.serviceURL + "/user/" + this.searchedUsername + "/videolist")
+          .then(response => {
+            if (response.data.status == "success") {
+              this.showUserVideoLists = true;
+              this.uservideolists = response.data.VideoLists;
+            }
+          })
+          .catch(e => {
+              this.noUserVideoList = true;
+            });
+        },
+
       /* Helper functions. Checks if the entered Youtube id is valid 
         Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
       validVideoId(id) {
@@ -369,6 +397,7 @@ window.onload = function() {
       },
       turnOffGet() {
         this.showOwnVideos = false;
+        this.showOwnVideoLists = false;
       }
     }
       //------- END methods --------
