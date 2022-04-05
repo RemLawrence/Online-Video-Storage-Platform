@@ -316,7 +316,7 @@ class UserWithName(Resource):
 
 # class Video
 class VideoInit(Resource):
-	# 8. POST: Create a video for a specific user
+	# (✓) 8. POST: Create a video for a specific user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d '{"id":"yqWzCV0kU_c", "size": 200}' 
 	# -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/video
@@ -491,7 +491,7 @@ class VideoSpec(Resource):
 
 
 class VideoListInit(Resource):
-	# 13. POST: Create a video list for a user
+	# (✓) 13. POST: Create a video list for a user
 	# Example curl command: 
 	# curl -i -H "Content-Type: application/json" -X POST -d 
 	# '{"name": "holo_EN", "description": ""}' 

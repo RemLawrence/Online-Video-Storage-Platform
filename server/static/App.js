@@ -46,7 +46,13 @@ window.onload = function() {
         videoAddedDuplicate: false,
         showVideoImage: false,
 
-        isAddVideoList: false
+        isAddVideoList: false,
+        videoListInput: {
+          title: "",
+          description: ""
+        },
+        videoListAddedSuccess: false,
+        videoListAddedFail: false,
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -201,6 +207,8 @@ window.onload = function() {
       gonnaaddvideo() {
         this.isAddVideo = true;
         this.showVideoImage = true;
+
+        this.isAddVideoList = false;
       },
 
       /* 8. POST: Create a video for a specific user
@@ -230,6 +238,55 @@ window.onload = function() {
           } else {
           this.videoAddedFail = true; 
           }
+        }
+      },
+
+      gonnaaddvideolist() {
+        this.isAddVideoList = true;
+        this.isAddVideo = false;
+      },
+
+      /* 13. POST: Create a video list for a user
+        # Example curl command: 
+        # curl -i -H "Content-Type: application/json" -X POST -d 
+        # '{"name": "holo_EN", "description": ""}' 
+        # -b cookie-jar -k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist */
+      addVideoList() {
+        this.videoListAddedSuccess = false;
+        this.videoListAddedFail = false;
+        if (this.videoListInput.title != "") {
+          if(this.videoListInput.description != "") {
+            axios
+            .post(this.serviceURL + "/user/" + this.loginInput.username + "/videolist", {
+                "name": this.videoListInput.title,
+                "description": this.videoListInput.description
+            })
+            .then(response => {
+                if (response.data.status == "created") {
+                  this.videoListAddedSuccess = true;
+                }
+            })
+            .catch(e => {
+              this.videoListAddedFail = true;
+            });
+          } else {
+            axios
+            .post(this.serviceURL + "/user/" + this.loginInput.username + "/videolist", {
+                "name": this.videoListInput.title,
+                "description": ""
+            })
+            .then(response => {
+                if (response.data.status == "created") {
+                  this.videoListAddedSuccess = true;
+                }
+            })
+            .catch(e => {
+              this.videoListAddedFail = true;
+            });
+          }
+        }
+        else {
+          this.videoListAddedFail = true;
         }
       },
 
