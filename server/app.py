@@ -536,7 +536,7 @@ class VideoListInit(Resource):
 		except:
 			abort(400) # bad request
 	
-	# 14. GET: Get all the videolists of a user
+	# (✓) 14. GET: Get all the videolists of a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist
@@ -552,6 +552,7 @@ class VideoListInit(Resource):
 				videolist = [0] * len(videolists)
 				for row in videolists:
 					videolist[i] = {"user": _userName,
+						"id": str(row['videoListId']), 
 						"name": str(row['videoListTitle']), 
 					"description": str(row['description'])}
 					i = i+1

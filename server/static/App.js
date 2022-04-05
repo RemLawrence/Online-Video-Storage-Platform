@@ -56,7 +56,9 @@ window.onload = function() {
         showOwnVideos: false,
         videos: "",
         noVideo: false,
-        showOwnVideoLists: false
+        showOwnVideoLists: false,
+        videolists: "",
+        noVideoList: false
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -319,6 +321,28 @@ window.onload = function() {
         })
         .catch(e => {
             this.noVideo = true;
+          });
+      },
+
+      /* 14. GET: Get all the videolists of a user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist */
+      showVideoList() {
+        this.turnOffAdd();
+        this.turnOffSearchUser();
+        this.showOwnVideos = false;
+
+        axios
+        .get(this.serviceURL + "/user/" + this.loginInput.username + "/videolist")
+        .then(response => {
+          if (response.data.status == "success") {
+            this.showOwnVideoLists = true;
+            this.videolists = response.data.VideoLists;
+          }
+        })
+        .catch(e => {
+            this.noVideoList = true;
           });
       },
 

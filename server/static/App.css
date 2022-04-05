@@ -35,3 +35,7 @@
     display: block;
     margin: 1.75rem auto;
 }
+
+.card.col-6 {
+    margin: auto;
+}
