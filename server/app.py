@@ -360,7 +360,7 @@ class VideoInit(Resource):
 		except:
 			abort(400) # bad request
 	
-	# 9. GET: Get all the videos of a user
+	# (✓) 9. GET: Get all the videos of a user
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video

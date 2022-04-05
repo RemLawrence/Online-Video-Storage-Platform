@@ -2,8 +2,9 @@
     margin-top: 10px;
 }
 
-#signup {
+.header-btn {
     float: right;
+    margin: 0.75rem 1.95rem 0 0;
 }
 
 .alert {

@@ -45,7 +45,6 @@ window.onload = function() {
         videoAddedFail: false,
         videoAddedDuplicate: false,
         showVideoImage: false,
-
         isAddVideoList: false,
         videoListInput: {
           title: "",
@@ -53,6 +52,11 @@ window.onload = function() {
         },
         videoListAddedSuccess: false,
         videoListAddedFail: false,
+
+        showOwnVideos: false,
+        videos: "",
+        noVideo: false,
+        showOwnVideoLists: false
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -180,6 +184,8 @@ window.onload = function() {
         # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
         #	-k https://cs3103.cs.unb.ca:31308/ */
         searchUserWithName() {
+          this.turnOffAdd();
+          this.turnOffGet();
           $("#searchUser_form").submit(function(e) {
             e.preventDefault();
           });
@@ -207,8 +213,9 @@ window.onload = function() {
       gonnaaddvideo() {
         this.isAddVideo = true;
         this.showVideoImage = true;
-
         this.isAddVideoList = false;
+        this.turnOffSearchUser();
+        this.turnOffGet();
       },
 
       /* 8. POST: Create a video for a specific user
@@ -244,6 +251,8 @@ window.onload = function() {
       gonnaaddvideolist() {
         this.isAddVideoList = true;
         this.isAddVideo = false;
+        this.turnOffSearchUser();
+        this.turnOffGet();
       },
 
       /* 13. POST: Create a video list for a user
@@ -290,29 +299,54 @@ window.onload = function() {
         }
       },
 
-      //   selectSchool(schoolId) {
-      //       this.showModal();
-      //     for (x in this.schoolsData) {
-      //       if (this.schoolsData[x].schoolId == schoolId) {
-      //         this.selectedSchool = this.schoolsData[x];
-      //       }
-      //     }
-      //   },
+      /* 9. GET: Get all the videos of a user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video */
+      showVideo() {
+        this.turnOffAdd();
+        this.turnOffSearchUser();
+        this.showOwnVideoLists = false;
+        this.noVideo = false;
 
-        /* Helper function. Checks if the entered Youtube id is valid 
-          Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
-        validVideoId(id) {
-          var img = document.getElementById('ytbImage'); 
-
-          if (img.clientWidth === 120) {
-            this.ytbIdValid = false;
+        axios
+        .get(this.serviceURL + "/user/" + this.loginInput.username + "/video")
+        .then(response => {
+          if (response.data.status == "success") {
+            this.showOwnVideos = true;
+            this.videos = response.data.Videos;
           }
-          else if(img.clientWidth === 320) {
-            this.ytbIdValid = true;
-          }
+        })
+        .catch(e => {
+            this.noVideo = true;
+          });
+      },
 
+      /* Helper functions. Checks if the entered Youtube id is valid 
+        Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
+      validVideoId(id) {
+        var img = document.getElementById('ytbImage'); 
+
+        if (img.clientWidth === 120) {
+          this.ytbIdValid = false;
         }
+        else if(img.clientWidth === 320) {
+          this.ytbIdValid = true;
+        }
+      },
+
+      turnOffAdd() {
+        this.isAddVideo = false;
+        this.isAddVideoList = false;
+      },
+      turnOffSearchUser() {
+        this.showSearchUser = false;
+        this.searchedUsername = "";
+      },
+      turnOffGet() {
+        this.showOwnVideos = false;
       }
+    }
       //------- END methods --------
     
     });

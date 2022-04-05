@@ -24,11 +24,14 @@
   <body>
     <div class="container-fluid" id="app">
       <div v-if="!authenticated" class="header">
-        <button id="signup" class="col-2 btn btn-outline-warning" type="button" v-on:click="signupbtn()">Sign Up</button>
+        <button class="col-2 btn btn-warning header-btn" type="button" v-on:click="signupbtn()">Sign Up</button>
+      </div>
+      <div v-else class="header">
+        <button type="button" class="col-2 btn btn-danger header-btn" v-on:click="logout()">Logout</button>
       </div>
       <div class="jumbotron jumbotron-fluid text-center">
         <div id="title">
-          <h1><i class="fab fa-vuejs"></i>ideo Sh<i class="fab fa-angular"></i>ring Platfo<i class="fab fa-react"></i>m.<sup><small>SPA</small></sup></sup></h1>
+          <h1><i class="fab fa-vuejs"></i>ideo Sh<i class="fab fa-angular"></i>ring Platfo<i class="fab fa-react"></i>m.<sup><small>JS</small></sup></sup></h1>
           <p><em>Refer to the video you like on YouTube!</em></p>
         </div>
       <div v-if="ifSignUp" class="form-group text-center">
@@ -307,7 +310,6 @@
           </div>
         </div>
         <div v-else class="text-center">
-          <button type="button" class="btn btn-outline-danger" v-on:click="logout()">Logout</button>
           <hr>
           <form id="searchUser_form" class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search User..." v-model="searchedUsername" aria-label="Search">
@@ -326,7 +328,6 @@
                 <li class="list-group-item"><b>Join Date:</b> <span class="userinfo">{{searchedUser.JoinDate}}</span></li>
               </ul>
               <div class="card-body">
-                <button class="btn btn-primary my-2 my-sm-0">Check Videos</button>
                 <button class="btn btn-info my-2 my-sm-0">Check VideoLists</button>
               </div>
             </div>
@@ -353,11 +354,11 @@
             </div>
             <div v-if="isAddVideoList">
               <div class="form-group">
-                <label for="videoListTitle">Email address</label>
-                <input class="col-4 mx-auto form-control" id="videoListTitle" type="text" name="title" v-model="videoListInput.title" placeholder="title.." />
+                <label for="videoListTitle">VideoList Name:</label>
+                <input class="col-4 mx-auto form-control" id="videoListTitle" type="text" name="title" v-model="videoListInput.title" placeholder="videolist title.." />
               </div>
               <div class="form-group">
-                <label for="videoListDesc">Example textarea</label>
+                <label for="videoListDesc">VideoList Description:</label>
                 <textarea class="col-4 mx-auto form-control" id="videoListDesc" v-model="videoListInput.description" rows="3"></textarea>
                 <button id="addVideo" class="col-1 btn btn-success" type="button" v-on:click="addVideoList()">Create!</button>
                 <div v-if="videoListAddedSuccess" class="alert alert-success" role="alert">
@@ -367,6 +368,18 @@
                   Something goes wrong.
                 </div>
               </div>
+            </div>
+          </div>
+
+          <hr>
+          <div>
+            <button id="ownVideo" class="col-4 btn btn-primary" type="button" v-on:click="showVideo()">Video</button>
+            <button class="col-4 btn btn-secondary" type="button" >VideoList</button>
+            <div v-if="noVideo" class="alert alert-warning" role="alert">
+              You don't have any video.
+            </div>
+            <div v-if="showOwnVideos" v-for="video in videos">
+              <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0"width="788.54" height="443" type="text/html" v-bind:src="'https://www.youtube.com/embed/'+ video.id + '?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0&origin=http://youtubeembedcode.com'"></iframe>
             </div>
           </div>
         </div>
