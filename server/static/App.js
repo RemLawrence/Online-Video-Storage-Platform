@@ -33,6 +33,7 @@ window.onload = function() {
         },
         signupSuccess: false,
 
+        /* Control the result/warning shown by search User */
         searchedUsername: "",
         searchUserAlert: false,
         showSearchUser: false,
@@ -100,6 +101,7 @@ window.onload = function() {
                   this.authenticated = true;
                   this.loggedIn = response.data.user_id;
                 }
+                this.showVideo();
             })
             .catch(e => {
                 this.loginInput.password = "";
@@ -189,12 +191,13 @@ window.onload = function() {
         # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
         #	-k https://cs3103.cs.unb.ca:31308/ */
         searchUserWithName() {
-          this.turnOffAdd();
+          this.turnOffAddVideo();
+          this.turnOffAddVideoList();
           this.turnOffGet();
           /* Once a new search, the user card needs to be cleared about the videolists */
           this.showUserVideoLists = false;
           this.noUserVideoList = false;
-          
+
           $("#searchUser_form").submit(function(e) {
             e.preventDefault();
           });
@@ -225,6 +228,7 @@ window.onload = function() {
         this.isAddVideoList = false;
         this.turnOffSearchUser();
         this.turnOffGet();
+        this.turnOffAddVideoList();
       },
 
       /* 8. POST: Create a video for a specific user
@@ -260,6 +264,7 @@ window.onload = function() {
       gonnaaddvideolist() {
         this.isAddVideoList = true;
         this.isAddVideo = false;
+        this.turnOffAddVideo();
         this.turnOffSearchUser();
         this.turnOffGet();
       },
@@ -313,7 +318,8 @@ window.onload = function() {
         # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
         #	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video */
       showVideo() {
-        this.turnOffAdd();
+        this.turnOffAddVideo();
+        this.turnOffAddVideoList();
         this.turnOffSearchUser();
         this.showOwnVideoLists = false;
         this.noVideo = false;
@@ -336,9 +342,11 @@ window.onload = function() {
         # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
         #	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist */
       showVideoList() {
-        this.turnOffAdd();
+        this.turnOffAddVideo();
+        this.turnOffAddVideoList();
         this.turnOffSearchUser();
         this.showOwnVideos = false;
+        this.noVideoList = false;
 
         axios
         .get(this.serviceURL + "/user/" + this.loginInput.username + "/videolist")
@@ -357,22 +365,38 @@ window.onload = function() {
         # Example curl command:
         # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar
         #	-k https://cs3103.cs.unb.ca:31308/user/gwargura/videolist */
-        showUserVideoList() {
-          this.turnOffAdd();
-          this.turnOffGet();
+      showUserVideoList() {
+        this.turnOffAddVideo();
+        this.turnOffAddVideoList();
+        this.turnOffGet();
   
-          axios
-          .get(this.serviceURL + "/user/" + this.searchedUsername + "/videolist")
-          .then(response => {
-            if (response.data.status == "success") {
-              this.showUserVideoLists = true;
-              this.uservideolists = response.data.VideoLists;
+        axios
+        .get(this.serviceURL + "/user/" + this.searchedUsername + "/videolist")
+        .then(response => {
+          if (response.data.status == "success") {
+            this.showUserVideoLists = true;
+            this.uservideolists = response.data.VideoLists;
+          }
+        })
+        .catch(e => {
+            this.noUserVideoList = true;
+          });
+      },
+
+      addVideoToVideoList: function(id){
+        axios
+        .post(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + id, {
+            "videoId": this.videoListInput.title
+        })
+        .then(response => {
+            if (response.data.status == "created") {
+                this.videoListAddedSuccess = true;
             }
-          })
-          .catch(e => {
-              this.noUserVideoList = true;
-            });
-        },
+        })
+        .catch(e => {
+          this.videoListAddedFail = true;
+        });
+      },
 
       /* Helper functions. Checks if the entered Youtube id is valid 
         Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
@@ -387,13 +411,23 @@ window.onload = function() {
         }
       },
 
-      turnOffAdd() {
+      turnOffAddVideo() {
         this.isAddVideo = false;
+        this.ytbId = "";
+        this.videoAddedFail = false;
+        this.videoAddedDuplicate = false;
+      },
+      turnOffAddVideoList() {
         this.isAddVideoList = false;
+        this.videoListInput.description = "";
+        this.videoListInput.title = "";
+        this.videoListAddedFail = false;
+        this.videoListAddedSuccess = false;
       },
       turnOffSearchUser() {
         this.showSearchUser = false;
         this.searchedUsername = "";
+        this.searchUserAlert = false;
       },
       turnOffGet() {
         this.showOwnVideos = false;
