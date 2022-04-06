@@ -1,5 +1,8 @@
 a:hover {
-    cursor:pointer;
+    cursor: pointer;
+}
+li:hover {
+    background-color:grey;
 }
 
 .btn.col-4 {
@@ -40,6 +43,20 @@ a:hover {
     margin: 1.75rem auto;
 }
 
-.card.col-10 {
-    margin: auto;
+/* margins for all the cards */
+.card {
+    margin: 2.75rem auto;
+}
+
+#video-adding {
+    display: flex;
+    justify-content: center;
+}
+
+.video-adding {
+    margin: 0.5rem 0.15rem;
+}
+
+.videolist-title {
+    font-size: 2.15rem;
 }

@@ -343,6 +343,7 @@
           </div>
         </div>
         <div v-else class="text-center">
+          <!--------------------------- Search User ---------------------------------->
           <div v-if="searchUserAlert" class="alert alert-danger" role="alert">
             The user does not exist. Try again?
           </div>
@@ -375,8 +376,9 @@
               </div>
             </div>
           </div>
-          
+
           <div class="addvideo_videolist">
+            <!--------------------------- Create Video ---------------------------------->
             <div v-if="isAddVideo">
               <span>YouTube Video Id:</span>
               <input class="col-4 mx-auto form-control" type="text" name="ytbId" v-model="ytbId" />
@@ -392,6 +394,7 @@
                 You've successfully added your video!
               </div>
             </div>
+            <!--------------------------- Create VideoList ---------------------------------->
             <div v-if="isAddVideoList">
               <div class="form-group">
                 <label for="videoListTitle">VideoList Name:</label>
@@ -411,6 +414,7 @@
             </div>
           </div>
 
+          <!--------------------------- Show own Videos ---------------------------------->
           <div>
             <div v-if="noVideo" class="alert alert-warning" role="alert">
               You don't have any video.
@@ -419,18 +423,27 @@
               <p>{{video.id}}</p>
               <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0"width="788.54" height="443" type="text/html" allow="fullscreen" v-bind:src="'https://www.youtube.com/embed/'+ video.id + '?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0&origin=http://youtubeembedcode.com'"></iframe>
             </div>
+            <!--------------------------- Show own VideoLists ---------------------------------->
             <div v-if="showOwnVideoLists" v-for="videolist in videolists">
               <div class="card col-10">
                 <div class="card-header">
                   {{videolist.id}}
                 </div>
                 <div class="card-body">
-                  <h5 class="card-title">{{videolist.name}}</h5>
+                  <h5 class="card-title videolist-title">{{videolist.name}}</h5>
                   <p class="card-text">{{videolist.description}}</p>
-                  <a><i class="fa-solid fa-circle-plus"></i></a>
-                  <button type="button" class="btn btn-outline-info" v-on:click="addVideoToVideoList(videolist.id)">+</button>
-
-                  <button class="btn btn-primary">Check Videos</button>
+                  <div id="video-adding">
+                    <div class="video-adding">YouTube Video Id:</div>
+                    <input class="video-adding col-2 form-control" type="text" name="videoId_addToList" v-model="videoId_addToList" />
+                    <button type="button" class="video-adding btn btn-outline-info" v-on:click="addVideoToVideoList(videolist.id)">+</button>
+                  </div>
+                  <button class="col-6 btn btn-primary">Check Videos it has!</button>
+                  <div v-if="videoListVideoAddedSuccess" class="alert alert-success" role="alert">
+                    Success!
+                  </div>
+                  <div v-if="videoListVideoAddedFail" class="alert alert-danger" role="alert">
+                    Check your video Id, please...
+                  </div>
                 </div>
               </div>
             </div>

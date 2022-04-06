@@ -673,7 +673,7 @@ class VideoList(Resource):
 			abort(400) # bad request
 
 class AddVideoToVideoList(Resource):
-	# 18. POST: Add a video to a videolist
+	# (✓) 18. POST: Add a video to a videolist
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X POST -d 
 	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' 

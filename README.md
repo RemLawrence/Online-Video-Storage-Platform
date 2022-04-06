@@ -5,8 +5,10 @@ TODO:
 4. Give user card some style (outline? bg-Color?)
 5. Dude, there's no way to know which users we have.
 
-6. Video - Check duplicate
 7. Video - hint image
+8. Give your own videolists some colors
+9. There should be some styles differences between your own videolists and other users' videolists 
+10. Change the whole page to make it look different
 
 ![ER Diagram](https://github.com/RemLawrence/Online-Video-Storage-Platform/blob/main/docs/ERD.png)
 

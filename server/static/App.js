@@ -14,9 +14,7 @@ window.onload = function() {
 
         authenticated: false,
         ifSignUp: false,
-        //schoolsData: null,
         loggedIn: null,
-        //editModal: false,
         loginInput: {
           username: "",
           password: ""
@@ -42,6 +40,7 @@ window.onload = function() {
         uservideolists: "",
         noUserVideoList: false,
 
+        /* Control the result/warning shown by add own video */
         isAddVideo: false,
         ytbId: "",
         ytbIdValid: false,
@@ -49,6 +48,8 @@ window.onload = function() {
         videoAddedFail: false,
         videoAddedDuplicate: false,
         showVideoImage: false,
+
+        /* Control the result/warning shown by add own videolist */
         isAddVideoList: false,
         videoListInput: {
           title: "",
@@ -57,12 +58,18 @@ window.onload = function() {
         videoListAddedSuccess: false,
         videoListAddedFail: false,
 
+        /* Control the result/warning shown by show own videos */
         showOwnVideos: false,
         videos: "",
         noVideo: false,
+
+         /* Control the result/warning shown by show own videolists */
         showOwnVideoLists: false,
         videolists: "",
         noVideoList: false,
+        videoId_addToList: "",
+        videoListVideoAddedSuccess: false,
+        videoListVideoAddedFail: false
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -384,18 +391,26 @@ window.onload = function() {
       },
 
       addVideoToVideoList: function(id){
-        axios
-        .post(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + id, {
-            "videoId": this.videoListInput.title
-        })
-        .then(response => {
-            if (response.data.status == "created") {
-                this.videoListAddedSuccess = true;
-            }
-        })
-        .catch(e => {
-          this.videoListAddedFail = true;
-        });
+        this.videoListVideoAddedSuccess = false,
+        this.videoListVideoAddedFail = false
+
+        if(this.videoId_addToList != "") {
+          axios
+          .post(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + id + "/addVideo", {
+              "videoId": this.videoId_addToList
+          })
+          .then(response => {
+              if (response.data.status == "created") {
+                  this.videoListVideoAddedSuccess = true;
+              }
+          })
+          .catch(e => {
+            this.videoListVideoAddedFail = true;
+          });
+        }
+        else {
+          this.videoListVideoAddedFail = true;
+        }
       },
 
       /* Helper functions. Checks if the entered Youtube id is valid 
@@ -423,6 +438,10 @@ window.onload = function() {
         this.videoListInput.title = "";
         this.videoListAddedFail = false;
         this.videoListAddedSuccess = false;
+
+        this.videoId_addToList = "",
+        this.videoListVideoAddedSuccess = false,
+        this.videoListVideoAddedFail = false
       },
       turnOffSearchUser() {
         this.showSearchUser = false;
@@ -432,6 +451,8 @@ window.onload = function() {
       turnOffGet() {
         this.showOwnVideos = false;
         this.showOwnVideoLists = false;
+        this.noVideo = false;
+        this.noVideoList = false;
       }
     }
       //------- END methods --------
