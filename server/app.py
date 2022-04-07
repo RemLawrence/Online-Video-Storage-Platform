@@ -228,7 +228,7 @@ class UserWithName(Resource):
 		except:
 			abort(400) # bad request
 	
-	# 6. PUT: Update the info of an existing user providing username
+	# (✕) 6. PUT: Update the info of an existing user providing username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d 
 	# '{"username": "gwar_gura", "password": "sh0rkzzz", "email": "gwargura@hotmail.com", "country":"CANADA"}' 
@@ -591,7 +591,7 @@ class VideoList(Resource):
 		except:
 			abort(400) # bad request
 
-	# 16. PUT: Update existing videolist info
+	# (✕) 16. PUT: Update existing videolist info
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X PUT -d 
 	# '{"name": "holo_JP(2019-2022)", "description": "unthinkable memories"}' -b cookie-jar 
@@ -718,7 +718,7 @@ class AddVideoToVideoList(Resource):
 			abort(400) # bad request
 
 class DelVideoFromVideoList(Resource):
-	# 19. DELETE: Delete a video from a videolist
+	# (✓) 19. DELETE: Delete a video from a videolist
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -d 
 	# '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k 

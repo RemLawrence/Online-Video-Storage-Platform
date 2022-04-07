@@ -520,6 +520,29 @@ window.onload = function() {
         });
       },
 
+      /* 19. DELETE: Delete a video from a videolist
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X DELETE -d 
+        # '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' -b cookie-jar -k 
+        # https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/deleteVideo */
+      delVideoInVideoList: function(videoListId, videoId){
+        const payload = {"videoId": videoId}
+        axios
+        .delete(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + videoListId + "/deleteVideo", 
+        {
+          data: payload
+        })
+        .then(response => {
+          console.log(response);
+          if (response.data.status == "Deleted") {
+            this.showVideoInVideoList(videoListId);
+          }
+        })
+        .catch(e => {
+          console.log(e);
+        });
+      },
+
       /* Helper functions. Checks if the entered Youtube id is valid 
         Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
       validVideoId(id) {
