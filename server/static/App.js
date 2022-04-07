@@ -499,7 +499,24 @@ window.onload = function() {
           }
         })
         .catch(e => {
-          
+          console.log("whatever. cannot happen");
+        });
+      },
+
+      /* 17. DELETE: Delete a videolist for a user
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar -k 
+        # https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8 */
+      delVideoList: function(id){
+        axios
+        .delete(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + id)
+        .then(response => {
+          if (response.data.status == "Deleted") {
+            this.showVideoList();
+          }
+        })
+        .catch(e => {
+          console.log("whatever. cannot happen");
         });
       },
 

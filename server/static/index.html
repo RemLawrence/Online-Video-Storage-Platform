@@ -445,6 +445,7 @@
                     <button type="button" class="video-adding btn btn-outline-info" v-on:click="addVideoToVideoList(videolist.id)">+</button>
                   </div>
                   <button class="col-6 btn btn-primary" v-on:click="showVideoInVideoList(videolist.id)">Check Videos it has!</button>
+                  <button type="button" class="btn btn-outline-danger" v-on:click="delVideoList(videolist.id)">Delete This VideoList</button>
                   <div v-if="videoListVideoAddedSuccess && selectedVideoListId === videolist.id" class="alert alert-success" role="alert">
                     Success!
                   </div>
