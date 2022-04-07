@@ -69,7 +69,17 @@ window.onload = function() {
         noVideoList: false,
         videoId_addToList: "",
         videoListVideoAddedSuccess: false,
-        videoListVideoAddedFail: false
+        videoListVideoAddedFail: false,
+
+        showVideoInOwnVideoList: false,
+        showVideoInOwnVideoListFail: false,
+        videoInVideoLists: "",
+        selectedVideoListId: "",
+
+        showVideoInOtherVideoList: false,
+        showVideoInOtherVideoListFail: false,
+        videoInOtherVideoLists: "",
+        selectedOtherVideoListId: ""
       },
       //------- lifecyle hooks --------
       // mounted: function() {
@@ -200,7 +210,8 @@ window.onload = function() {
         searchUserWithName() {
           this.turnOffAddVideo();
           this.turnOffAddVideoList();
-          this.turnOffGet();
+          this.turnOffGetVideo();
+          this.turnOffGetVideoList();
           /* Once a new search, the user card needs to be cleared about the videolists */
           this.showUserVideoLists = false;
           this.noUserVideoList = false;
@@ -234,7 +245,8 @@ window.onload = function() {
         this.showVideoImage = true;
         this.isAddVideoList = false;
         this.turnOffSearchUser();
-        this.turnOffGet();
+        this.turnOffGetVideo();
+        this.turnOffGetVideoList();
         this.turnOffAddVideoList();
       },
 
@@ -273,7 +285,8 @@ window.onload = function() {
         this.isAddVideo = false;
         this.turnOffAddVideo();
         this.turnOffSearchUser();
-        this.turnOffGet();
+        this.turnOffGetVideo();
+        this.turnOffGetVideoList();
       },
 
       /* 13. POST: Create a video list for a user
@@ -328,6 +341,7 @@ window.onload = function() {
         this.turnOffAddVideo();
         this.turnOffAddVideoList();
         this.turnOffSearchUser();
+        this.turnOffGetVideoList();
         this.showOwnVideoLists = false;
         this.noVideo = false;
 
@@ -352,6 +366,7 @@ window.onload = function() {
         this.turnOffAddVideo();
         this.turnOffAddVideoList();
         this.turnOffSearchUser();
+        this.turnOffGetVideo();
         this.showOwnVideos = false;
         this.noVideoList = false;
 
@@ -375,7 +390,8 @@ window.onload = function() {
       showUserVideoList() {
         this.turnOffAddVideo();
         this.turnOffAddVideoList();
-        this.turnOffGet();
+        this.turnOffGetVideo();
+        this.turnOffGetVideoList();
   
         axios
         .get(this.serviceURL + "/user/" + this.searchedUsername + "/videolist")
@@ -390,9 +406,17 @@ window.onload = function() {
           });
       },
 
+      /* 18. POST: Add a video to a videolist
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X POST -d 
+        # '{"videoId": "574dc2c0-aaf7-11ec-b658-525400a3fea8"}' 
+        # -b cookie-jar -k 
+        # https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/9313ec35-ac5c-11ec-b658-525400a3fea8/addVideo */
       addVideoToVideoList: function(id){
-        this.videoListVideoAddedSuccess = false,
-        this.videoListVideoAddedFail = false
+        this.videoListVideoAddedSuccess = false;
+        this.videoListVideoAddedFail = false;
+        /* Store this clicked videolist id */
+        this.selectedVideoListId = id;
 
         if(this.videoId_addToList != "") {
           axios
@@ -412,6 +436,55 @@ window.onload = function() {
           this.videoListVideoAddedFail = true;
         }
       },
+
+      /* 15. GET: Get the info of a videolist (videos, essentially)
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k 
+        # https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8 */
+      showVideoInVideoList: function(id){
+        this.videoListVideoAddedSuccess = false;
+        this.videoListVideoAddedFail = false;
+        
+        this.showVideoInOwnVideoList = false;
+        this.showVideoInOwnVideoListFail = false;
+        this.videoInVideoLists = "";
+        /* Store this clicked videolist id */
+        this.selectedVideoListId = id;
+        axios
+        .get(this.serviceURL + "/user/" + this.loginInput.username + "/videolist/" + id)
+        .then(response => {
+          if (response.data.status == "success") {
+            this.videoInVideoLists = response.data.VideoList;
+            this.showVideoInOwnVideoList = true;
+          }
+        })
+        .catch(e => {
+          this.showVideoInOwnVideoListFail = true;
+        });
+      },
+
+      /* 15. GET: Get the info of a videolist (videos, essentially)
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k 
+        # https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8 */
+        showVideoInVideoList_Other: function(id){
+          this.showVideoInOtherVideoList = false;
+          this.showVideoInOtherVideoListFail = false;
+          this.videoInOtherVideoLists = "";
+          /* Store this clicked videolist id */
+          this.selectedOtherVideoListId = id;
+          axios
+          .get(this.serviceURL + "/user/" + this.searchedUsername + "/videolist/" + id)
+          .then(response => {
+            if (response.data.status == "success") {
+              this.videoInOtherVideoLists = response.data.VideoList;
+              this.showVideoInOtherVideoList = true;
+            }
+          })
+          .catch(e => {
+            this.showVideoInOtherVideoListFail = true;
+          });
+        },
 
       /* Helper functions. Checks if the entered Youtube id is valid 
         Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
@@ -438,21 +511,33 @@ window.onload = function() {
         this.videoListInput.title = "";
         this.videoListAddedFail = false;
         this.videoListAddedSuccess = false;
-
-        this.videoId_addToList = "",
-        this.videoListVideoAddedSuccess = false,
-        this.videoListVideoAddedFail = false
       },
       turnOffSearchUser() {
         this.showSearchUser = false;
         this.searchedUsername = "";
         this.searchUserAlert = false;
+
+        this.showVideoInOtherVideoList = false;
+        this.showVideoInOtherVideoListFail = false;
+        this.videoInOtherVideoLists = "";
+        this.selectedOtherVideoListId = "";
       },
-      turnOffGet() {
+      turnOffGetVideo() {
         this.showOwnVideos = false;
-        this.showOwnVideoLists = false;
         this.noVideo = false;
+      },
+      turnOffGetVideoList() {
         this.noVideoList = false;
+        this.showOwnVideoLists = false;
+
+        this.videoId_addToList = "";
+        this.videoListVideoAddedSuccess = false;
+        this.videoListVideoAddedFail = false;
+
+        this.showVideoInOwnVideoList = false;
+        this.showVideoInOwnVideoListFail = false;
+        this.videoInVideoLists = "";
+        this.selectedVideoListId = "";
       }
     }
       //------- END methods --------

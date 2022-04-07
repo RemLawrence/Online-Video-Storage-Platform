@@ -281,7 +281,7 @@ class UserWithName(Resource):
 			abort(400) # bad request
 
 	
-	# 7. DELETE: Delete a specific user providing its username
+	# (✕) 7. DELETE: Delete a specific user providing its username
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/gwarguraa
@@ -566,7 +566,7 @@ class VideoListInit(Resource):
 			abort(400) # bad request
 		
 class VideoList(Resource):
-	# 15. GET: Get the info of a videolist (videos, essentially)
+	# (✓) 15. GET: Get the info of a videolist (videos, essentially)
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X GET -b cookie-jar -k 
 	# https://cs3103.cs.unb.ca:31308/user/gwargura/videolist/81daada9-ac5f-11ec-b658-525400a3fea8
