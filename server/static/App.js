@@ -444,7 +444,7 @@ window.onload = function() {
       showVideoInVideoList: function(id){
         this.videoListVideoAddedSuccess = false;
         this.videoListVideoAddedFail = false;
-        
+
         this.showVideoInOwnVideoList = false;
         this.showVideoInOwnVideoListFail = false;
         this.videoInVideoLists = "";
@@ -485,6 +485,23 @@ window.onload = function() {
             this.showVideoInOtherVideoListFail = true;
           });
         },
+      
+      /* 12. DELETE: Delete a user's video
+        # Example curl command:
+        # curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
+        #	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8 */
+      delVideo: function(id){
+        axios
+        .delete(this.serviceURL + "/user/" + this.loginInput.username + "/video/" + id)
+        .then(response => {
+          if (response.data.status == "Deleted") {
+            this.showVideo();
+          }
+        })
+        .catch(e => {
+          
+        });
+      },
 
       /* Helper functions. Checks if the entered Youtube id is valid 
         Credits: https://gist.github.com/tonY1883/a3b85925081688de569b779b4657439b */
@@ -502,6 +519,7 @@ window.onload = function() {
       turnOffAddVideo() {
         this.isAddVideo = false;
         this.ytbId = "";
+        this.videoAddedSuccess = false;
         this.videoAddedFail = false;
         this.videoAddedDuplicate = false;
       },

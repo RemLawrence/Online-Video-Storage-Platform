@@ -455,7 +455,7 @@ class VideoSpec(Resource):
 		except:
 			abort(400) # bad request
 	
-	# 12. DELETE: Delete a user's video
+	# (✓) 12. DELETE: Delete a user's video
 	# Example curl command:
 	# curl -i -H "Content-Type: application/json" -X DELETE -b cookie-jar
 	#	-k https://cs3103.cs.unb.ca:31308/user/uruha_rushia/video/2f050dce-aaf0-11ec-b658-525400a3fea8
@@ -477,7 +477,6 @@ class VideoSpec(Resource):
 			if(len(deletedVideo) > 0):
 				for row in deletedVideo:
 					video = {"id": str(row['videoId']),
-						"title": str(row['videoTitle']), 
 					"size": str(row['videoSize']), 
 					"Upload Date": str(row['uploadDate'])}
 				response = {'status': 'Deleted', 'Deleted Video': video}
