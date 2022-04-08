@@ -12,8 +12,8 @@
   <!-- Font Awesome -->
   <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
   <script src="https://kit.fontawesome.com/111f919a64.js" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="App.js"></script>
-  <link rel="stylesheet" href="App.css"/>
+  <script type="text/javascript" src="/static/App.js"></script>
+  <link rel="stylesheet" href="/static/App.css"/>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -65,6 +65,9 @@
           <p><em>Refer to the video you like on YouTube!</em></p>
         </div>
       <div v-if="ifSignUp" class="form-group text-center">
+        <div class="alert alert-warning" role="alert">
+          For secruity issue, please do not put your actual fcs password here.
+        </div>
         <input class="col-4 mx-auto form-control" type="text" name="username" v-model="signupInput.username" placeholder="Username" />
         <input class="col-4 mx-auto form-control" type="password" name="password" v-model="signupInput.password" placeholder="Password" />
         <input class="col-4 mx-auto form-control" type="email" name="email" v-model="signupInput.email" placeholder="Email" />
@@ -454,7 +457,7 @@
                   <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0"width="788.54" height="443" type="text/html" allow="fullscreen" v-bind:src="'https://www.youtube.com/embed/'+ video.videoId + '?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0&origin=http://youtubeembedcode.com'"></iframe>
                   <button type="button" class="del-btn btn btn-outline-danger" v-on:click="delVideoInVideoList(videolist.id, video.videoId)">-</button>
                 </div>
-                <div v-if="showVideoInOwnVideoListFail === true && selectedVideoListId === videolist.id" class="alert alert-danger" role="alert">
+                <div v-if="showVideoInOwnVideoListFail === true && selectedVideoListId === videolist.id" class="alert alert-warning" role="alert">
                   There is no video in this videolist
                 </div>
               </div>

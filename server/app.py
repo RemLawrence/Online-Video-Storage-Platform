@@ -13,7 +13,8 @@ import pymysql.cursors
 
 import settings # Our server and db settings, stored in settings.py
 
-app = Flask(__name__)
+app = Flask(__name__,
+            static_url_path='/static')
 CORS(app)
 # Set Server-side session config: Save sessions in the local app directory.
 app.config['SECRET_KEY'] = settings.SECRET_KEY
@@ -58,6 +59,15 @@ def not_found(error):
 @app.errorhandler(500) # decorators to add to 500 response
 def not_found(error):
 	return make_response(jsonify( { 'status': 'Internal server error' } ), 500)
+
+####################################################################################
+#
+# Static Endpoints for humans
+#
+class Root(Resource):
+   # get method. What might others be aptly named? (hint: post)
+	def get(self):
+		return app.send_static_file('index.html')
 
 ###################################################################################
 #
@@ -768,6 +778,8 @@ class DelVideoFromVideoList(Resource):
 # Identify/create endpoints and endpoint objects
 #
 api = Api(app)
+api.add_resource(Root,'/')
+
 api.add_resource(SignIn, '/signin')
 api.add_resource(SignUp, '/signup')
 api.add_resource(UserWithName, '/user/<_userName>')
