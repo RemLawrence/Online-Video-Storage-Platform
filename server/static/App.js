@@ -354,6 +354,7 @@ window.onload = function() {
           }
         })
         .catch(e => {
+            this.videos = "";
             this.noVideo = true;
           });
       },
@@ -380,6 +381,7 @@ window.onload = function() {
         })
         .catch(e => {
             this.noVideoList = true;
+            this.videolists = "";
           });
       },
 

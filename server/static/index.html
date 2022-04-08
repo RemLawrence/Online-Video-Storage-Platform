@@ -50,9 +50,6 @@
                   <a class="dropdown-item" v-on:click="gonnaaddvideolist()">VideoList</a>
                 </div>
               </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#">Fart</a>
-              </li>
             </ul>
             <form id="searchUser_form" class="form-inline my-2 my-lg-0">
               <input class="form-control mr-sm-2" type="search" placeholder="Search User..." v-model="searchedUsername" aria-label="Search">
@@ -331,7 +328,7 @@
         <div v-if="!authenticated" class="form-group text-center">
           <input class="col-4 mx-auto form-control" type="text" name="username" v-model="loginInput.username" placeholder="Username" />
           <input class="col-4 mx-auto form-control" type="password" name="password" v-model="loginInput.password" placeholder="Password" />
-          <button class="col-4 btn btn-outline-success" type="button" v-on:click="login()">Login</button>
+          <button class="col-4 btn btn-success" type="button" v-on:click="login()">Login</button>
           <div v-if="loginSuccess" class="alert alert-success">
             <strong>Success!</strong> You are successfully authenticated with our app! <strong>Enjoy!</strong></a>.
           </div>
@@ -371,7 +368,7 @@
                     <div v-if="showVideoInOtherVideoList === true && selectedOtherVideoListId === videolist.id" v-for="video in videoInOtherVideoLists">
                       <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0"width="688.54" height="443" type="text/html" allow="fullscreen" v-bind:src="'https://www.youtube.com/embed/'+ video.videoId + '?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0&origin=http://youtubeembedcode.com'"></iframe>
                     </div>
-                    <div v-if="showVideoInOtherVideoListFail ===true && selectedOtherVideoListId === videolist.id" class="alert alert-danger" role="alert">
+                    <div v-if="showVideoInOtherVideoListFail ===true && selectedOtherVideoListId === videolist.id" class="alert alert-warning" role="alert">
                       There is no video in this videolist
                     </div>
                   </div>
@@ -425,10 +422,10 @@
             <div v-if="noVideo" class="alert alert-warning" role="alert">
               You don't have any video.
             </div>
-            <div v-if="showOwnVideos" v-for="video in videos">
+            <div id="yourVideo" v-if="showOwnVideos" v-for="video in videos">
               <p>{{video.id}}</p>
               <iframe frameborder="0" scrolling="no" marginheight="0" marginwidth="0"width="788.54" height="443" type="text/html" allow="fullscreen" v-bind:src="'https://www.youtube.com/embed/'+ video.id + '?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0&origin=http://youtubeembedcode.com'"></iframe>
-              <button type="button" class="del-btn btn btn-outline-danger" v-on:click="delVideo(video.id)">-</button>
+              <button type="button" class="del-btn btn btn-danger" v-on:click="delVideo(video.id)">-</button>
             </div>
             <!--------------------------- Show own VideoLists ---------------------------------->
             <div v-if="showOwnVideoLists" v-for="videolist in videolists">
