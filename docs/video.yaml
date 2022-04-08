@@ -16,7 +16,7 @@ tags:
   - name: videolist
     description: "The videolist in video storage platform"
 paths:
-  /user/signin:
+  /signin:
     post:
       tags:
       - "user"
@@ -119,6 +119,7 @@ paths:
         '404':
           description: "user does not exist"
     put:
+      deprecated: true
       tags:
         - "user"
       summary: "Update the info of an existing user providing username"
@@ -151,6 +152,7 @@ paths:
       security:
       - session_cookie: []
     delete:
+      deprecated: true
       tags:
       - "user"
       summary: "Deletes a user"
@@ -237,6 +239,7 @@ paths:
     
   /user/{username}/video/{videoId}:
     get:
+      deprecated: true
       tags:
       - "video"
       summary: "Find video by ID"
@@ -264,6 +267,7 @@ paths:
         "404":
           description: "User or Video not found"
     put:
+      deprecated: true
       tags:
       - "video"
       summary: "Update the likes of a spefiic video"
@@ -409,6 +413,7 @@ paths:
         "404":
           description: "User or VideoList not found"
     put:
+      deprecated: true
       tags:
         - "videolist"
       summary: "Update existing videolist info"
@@ -583,7 +588,6 @@ definitions:
       type: "object"
       required:
         - "videoId"
-        - "videoTitle"
         - "videoSize"
         - "likes"
         - "createDate"
@@ -592,9 +596,6 @@ definitions:
         videoId:
           type: "string"
           example: "574dc2c0-aaf7-11ec-b658-525400a3fea8"
-        videoTitle:
-          type: "string"
-          example: 'minecraft chu'
         videoSize:
           type: "integer"
           example: 100
